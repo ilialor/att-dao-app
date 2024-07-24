@@ -43,7 +43,7 @@
 				<button class="copy-button" on:click={copyValue}>
 					<img id="copy-icon" src={copy_icon} alt="Copy ID" />
 				</button>
-			</span> <br />
+			</span>
 			<h2>Save your this id and Internet Identity number for later use. <br /></h2>
 			<br />
 			<button class="logout" on:click={handleLogout}> Logout</button>
