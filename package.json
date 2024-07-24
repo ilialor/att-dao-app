@@ -14,6 +14,7 @@
 	},
 	"dependencies": {
 		"@dfinity/agent": "^2.0.0",
+		"@dfinity/auth-client": "^2.0.0",
 		"@dfinity/candid": "^2.0.0",
 		"@dfinity/principal": "^2.0.0"
 	},
@@ -29,6 +30,7 @@
 		"eslint-plugin-svelte": "^2.35.1",
 		"prettier": "^2.8.8",
 		"prettier-plugin-svelte": "^2.10.1",
+		"sass": "^1.77.8",
 		"svelte": "^3.59.2",
 		"svelte-check": "^3.6.2",
 		"typescript": "^5.3.3",

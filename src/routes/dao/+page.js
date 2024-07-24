@@ -1,6 +1,6 @@
 import { dev } from '$app/environment';
 import { Actor, HttpAgent } from '@dfinity/agent';
-import { idlFactory as client } from './client.did';
+import { idlFactory as client } from '../client.did';
 
 const client_canister = "mmt3g-qiaaa-aaaal-qi6ra-cai";
 
