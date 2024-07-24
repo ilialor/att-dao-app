@@ -13,6 +13,7 @@
 	let loggedIn = false;
 
 	function handleLogin() {
+		console.log('handleLogin: call loginII');
 		loginII();
 	}
 
