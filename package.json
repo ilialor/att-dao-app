@@ -12,6 +12,11 @@
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write ."
 	},
+	"dependencies": {
+		"@dfinity/agent": "^2.0.0",
+		"@dfinity/candid": "^2.0.0",
+		"@dfinity/principal": "^2.0.0"
+	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^4.5.10",
 		"@neoconfetti/svelte": "^1.0.0",
