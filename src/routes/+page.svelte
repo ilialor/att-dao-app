@@ -12,6 +12,10 @@
 
 	let loggedIn = false;
 
+	onMount(() => {
+		console.log('Main page script mounted');
+	});
+
 	function handleLogin() {
 		console.log('handleLogin: call loginII');
 		loginII();
