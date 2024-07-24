@@ -3,6 +3,7 @@
 	import { loginII, logout, isAuthenticated, principalId } from './auth.js';
 	import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
+	import { onMount } from 'svelte';
 
 	let principal = '';
 
