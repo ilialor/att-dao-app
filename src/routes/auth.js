@@ -18,8 +18,6 @@ async function initializeAuthClient() {
 }
 
 export async function loginII() {
-  console.log("loginII: Starting II auth");
-
   if (!browser) return;
 
   const authClient = await AuthClient.create();

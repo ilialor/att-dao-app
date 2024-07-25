@@ -3,7 +3,6 @@
 	import { loginII, logout, isAuthenticated, principalId } from './auth.js';
 	import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
-	import { onMount } from 'svelte';
 
 	let principal = '';
 
@@ -13,12 +12,7 @@
 
 	let loggedIn = false;
 
-	onMount(() => {
-		console.log('Main page script mounted');
-	});
-
 	function handleLogin() {
-		console.log('handleLogin: call loginII');
 		loginII();
 	}
 
