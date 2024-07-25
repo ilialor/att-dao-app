@@ -1,5 +1,5 @@
 <script>
-	import { _client_canister_actor } from './+page.js';
+	// import { _client_canister_actor } from './+page.js';
 	import { loginII, logout, isAuthenticated, principalId } from './auth.js';
 	import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
