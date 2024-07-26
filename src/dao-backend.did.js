@@ -31,7 +31,7 @@ export const idlFactory = ({ IDL }) => {
     'notAuthorized': IDL.Null,
     'invalid': IDL.Vec(IDL.Text),
   });
-  const Result_4 = IDL.Variant({ 'ok': IDL.Nat, 'err': CreateProposalError });
+  const Result_3 = IDL.Variant({ 'ok': IDL.Nat, 'err': CreateProposalError });
   const Result_1 = IDL.Variant({ 'ok': IDL.Null, 'err': IDL.Text });
   const Member = IDL.Record({ 'id': IDL.Principal, 'votingPower': IDL.Nat });
   const Vote = IDL.Record({
@@ -60,8 +60,10 @@ export const idlFactory = ({ IDL }) => {
     'count': IDL.Nat,
     'offset': IDL.Nat,
   });
-  const Result_3 = IDL.Variant({ 'ok': IDL.Text, 'err': IDL.Text });
-  const Result_2 = IDL.Variant({ 'ok': IDL.Nat, 'err': IDL.Text });
+  const Result_2 = IDL.Variant({
+    'ok': IDL.Tuple(IDL.Nat, IDL.Text, IDL.Text),
+    'err': IDL.Text,
+  });
   const VoteError = IDL.Variant({
     'proposalNotFound': IDL.Null,
     'notAuthorized': IDL.Null,
@@ -72,21 +74,20 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'ok': IDL.Null, 'err': VoteError });
   return IDL.Service({
     'addMember': IDL.Func([IDL.Principal, IDL.Nat], [AddMemberResult], []),
-    'createProposal': IDL.Func([ProposalContent], [Result_4], []),
-    'createVotingRewardsProposal': IDL.Func([IDL.Principal], [Result_4], []),
+    'createProposal': IDL.Func([ProposalContent], [Result_3], []),
+    'createVotingRewardsProposal': IDL.Func(
+      [IDL.Principal, IDL.Nat],
+      [Result_3],
+      [],
+    ),
     'distributeMonthlyVotingRewards': IDL.Func([], [Result_1], []),
-    'executeAdjustParameters': IDL.Func([IDL.Nat], [Result_1], []),
-    'executeCodeUpdate': IDL.Func([IDL.Nat], [Result_1], []),
-    'executeTransferFunds': IDL.Func([IDL.Nat], [Result_1], []),
     'getMember': IDL.Func([IDL.Principal], [IDL.Opt(Member)], ['query']),
     'getProposal': IDL.Func([IDL.Nat], [IDL.Opt(Proposal)], ['query']),
     'getProposals': IDL.Func([IDL.Nat, IDL.Nat], [PagedResult], ['query']),
     'getRewards': IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat))], []),
     'greet': IDL.Func([IDL.Text], [IDL.Text], ['query']),
-    'initializeLedger': IDL.Func([], [Result_3], []),
+    'initLedger': IDL.Func([], [Result_2], []),
     'listMembers': IDL.Func([], [IDL.Vec(Member)], ['query']),
-    'processUserAction': IDL.Func([IDL.Text, IDL.Text], [Result_2], []),
-    'processVotingRewards': IDL.Func([IDL.Principal], [Result_1], []),
     'removeMember': IDL.Func([IDL.Principal], [Result_1], []),
     'runTests': IDL.Func([], [], []),
     'vote': IDL.Func([IDL.Nat, IDL.Text, IDL.Bool], [Result], []),

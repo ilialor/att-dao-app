@@ -4,7 +4,7 @@ import { idlFactory as client } from '../client.did';
 
 const client_canister = "mmt3g-qiaaa-aaaal-qi6ra-cai";
 
-const agent = new HttpAgent({ host: 'https://ic0.app' });
+const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
 
 const client_canister_actor = Actor.createActor(client, { agent, canisterId: client_canister });
 

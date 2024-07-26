@@ -1,9 +1,16 @@
 import { writable } from 'svelte/store';
 import { AuthClient } from '@dfinity/auth-client';
 import { browser } from '$app/environment';
+import { Actor, HttpAgent } from '@dfinity/agent';
+import { idlFactory as client } from '../dao-backend.did';
+
+if (typeof global === 'undefined') {
+  window.global = window;
+}
 
 export const principalId = writable('');
 export const isAuthenticated = writable(false);
+export let client_canister_actor = null;
 
 async function initializeAuthClient() {
   if (!browser) return;
@@ -37,7 +44,7 @@ export async function loginII() {
 }
 
 export function logout() {
-  if (!browser) return; // И здесь также
+  if (!browser) return;
 
   localStorage.removeItem('ic-delegation');
   localStorage.removeItem('ic-identity');
@@ -46,5 +53,12 @@ export function logout() {
 }
 
 if (browser) {
-  initializeAuthClient(); // Обернуть вызов этой функции в проверку флага
+  initializeAuthClient();
+}
+
+export async function dao_backend() {
+  const client_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
+  const agent = new HttpAgent({ host: 'https://ic0.app' });
+  await agent.fetchRootKey(); // for local 
+  return Actor.createActor(client, { agent, canisterId: client_canister });
 }

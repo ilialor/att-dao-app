@@ -1,6 +1,12 @@
 <script>
-	// import { _client_canister_actor } from './+page.js';
-	import { loginII, logout, isAuthenticated, principalId } from './auth.js';
+	import {
+		loginII,
+		logout,
+		isAuthenticated,
+		principalId,
+		dao_backend,
+		client_canister_actor
+	} from './auth.js';
 	import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
 
@@ -27,6 +33,26 @@
 		await navigator.clipboard.writeText(principal);
 		alert('ID скопирован: ' + principal);
 	}
+
+	let isLoading = false;
+
+	async function dao() {
+		isLoading = true;
+		let actor = client_canister_actor;
+		try {
+			if (!client_canister_actor) {
+				// @ts-ignore
+				actor = await dao_backend();
+			}
+			// @ts-ignore
+			let members = await actor.listMembers();
+			console.log('Members: ', members);
+		} catch (error) {
+			console.error('Error in DAO function:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -42,6 +68,10 @@
 				<span class="principal-value">{principal}</span>
 				<button class="copy-button" on:click={copyValue}>
 					<img id="copy-icon" src={copy_icon} alt="Copy ID" />
+				</button>
+				<br />
+				<button class="dao-button" on:click={dao} disabled={isLoading}>
+					{isLoading ? 'Loading...' : 'DAO Members'}
 				</button>
 			</span>
 			<h2>Save your this id and Internet Identity number for later use. <br /></h2>
