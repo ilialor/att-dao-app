@@ -158,4 +158,23 @@
 		color: #f0f0f0;
 		cursor: not-allowed;
 	}
+
+	@media (max-width: 640px) {
+		nav a {
+			font-size: 0.7rem;
+			padding: 0 0.3rem;
+		}
+
+		.notification-button {
+			max-width: 80px;
+			height: 30px;
+			line-height: 30px;
+			font-size: 14px;
+		}
+
+		.corner img {
+			width: 1.5em;
+			height: 1.5em;
+		}
+	}
 </style>
