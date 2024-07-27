@@ -4,13 +4,16 @@
 		logout,
 		isAuthenticated,
 		principalId,
-		dao_backend,
-		client_canister_actor
+		broadcaster,
+		broadcaster_canister_actor
 	} from './auth.js';
+	// import { Principal } from '@dfinity/principal';
 	import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
 
 	let principal = '';
+
+	let isLoading = false;
 
 	principalId.subscribe((value) => {
 		principal = value;
@@ -33,22 +36,21 @@
 		await navigator.clipboard.writeText(principal);
 		alert('ID скопирован: ' + principal);
 	}
-
-	let isLoading = false;
-
-	async function dao() {
+	async function getNotifications() {
 		isLoading = true;
-		let actor = client_canister_actor;
+		let actor = broadcaster_canister_actor;
 		try {
-			if (!client_canister_actor) {
+			if (!broadcaster_canister_actor) {
 				// @ts-ignore
-				actor = await dao_backend();
+				actor = await broadcaster();
 			}
 			// @ts-ignore
-			let members = await actor.listMembers();
-			console.log('Members: ', members);
+			console.log('Getting notifications for user: ', principal);
+			// @ts-ignore
+			let notifications = await actor.getReceivedMessages(); // TODO getNotificationsByUser(principal);
+			console.log('Notifications: ', notifications);
 		} catch (error) {
-			console.error('Error in DAO function:', error);
+			console.log('Error when getting notifications: ', error);
 		} finally {
 			isLoading = false;
 		}
@@ -56,29 +58,29 @@
 </script>
 
 <svelte:head>
-	<title>Attention DAO Client</title>
+	<title>Attention Client</title>
 	<meta name="description" content="Attention DAO demo app" />
 </svelte:head>
 
 <main>
 	<div class="main-container">
 		{#if loggedIn}
-			<h2>Your Attention DAO id is:</h2>
+			<h2>Your Attention id is:</h2>
 			<span class="user-principal-container">
 				<span class="principal-value">{principal}</span>
 				<button class="copy-button" on:click={copyValue}>
 					<img id="copy-icon" src={copy_icon} alt="Copy ID" />
 				</button>
 				<br />
-				<button class="dao-button" on:click={dao} disabled={isLoading}>
-					{isLoading ? 'Loading...' : 'DAO Members'}
-				</button>
 			</span>
 			<h2>Save your this id and Internet Identity number for later use. <br /></h2>
 			<br />
+			<button class="notification-button" on:click={getNotifications} disabled={isLoading}>
+				{isLoading ? 'Loading...' : 'Notifications'}
+			</button>
 			<button class="logout" on:click={handleLogout}> Logout</button>
 		{:else}
-			<button class="login" on:click={handleLogin}> Please Login with Internet Identity</button>
+			<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
 		{/if}
 	</div>
 </main>
