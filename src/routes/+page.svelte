@@ -7,14 +7,15 @@
 		broadcaster,
 		broadcaster_canister_actor
 	} from './auth.js';
-	import copy_icon from '$lib/images/copy_icon.png';
+	// @ts-ignore
+	// import copy_icon from '$lib/images/copy_icon.png';
 	import './index.scss';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
+	import { isLoading, handleNotifications } from '$lib/notification-store';
 
 	let principal = '';
 	let messagesMapStore = writable(new Map());
-	let isLoading = false;
 	let loggedIn = false;
 
 	principalId.subscribe((value) => {
@@ -25,18 +26,21 @@
 		loggedIn = value;
 	});
 
-	function handleLogin() {
-		loginII();
-	}
+	// // @ts-ignore
+	// function handleLogin() {
+	// 	loginII();
+	// }
 
-	function handleLogout() {
-		logout();
-	}
+	// // @ts-ignore
+	// function handleLogout() {
+	// 	logout();
+	// }
 
-	async function copyValue() {
-		await navigator.clipboard.writeText(principal);
-		alert('ID скопирован: ' + principal);
-	}
+	// // @ts-ignore
+	// async function copyValue() {
+	// 	await navigator.clipboard.writeText(principal);
+	// 	alert('ID скопирован: ' + principal);
+	// }
 
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
@@ -44,11 +48,11 @@
 
 	onMount(() => {
 		console.log('onMount start');
-		handleNotifications();
+		handleNotificationsImpl();
 	});
 
-	async function handleNotifications() {
-		isLoading = true;
+	async function handleNotificationsImpl() {
+		isLoading.set(true);
 		let actor = broadcaster_canister_actor;
 		try {
 			if (!broadcaster_canister_actor) {
@@ -69,9 +73,11 @@
 		} catch (error) {
 			console.error('Error when getting notifications: ', error);
 		} finally {
-			isLoading = false;
+			isLoading.set(false);
 		}
 	}
+
+	handleNotifications.set(handleNotificationsImpl);
 
 	// @ts-ignore
 	function formatTimestamp(timestamp) {
@@ -102,27 +108,6 @@
 </svelte:head>
 
 <main>
-	<div class="main-container">
-		{#if loggedIn}
-			<h2>Your Attention id is:</h2>
-			<span class="user-principal-container">
-				<span class="principal-value">{principal}</span>
-				<button class="copy-button" on:click={copyValue}>
-					<img id="copy-icon" src={copy_icon} alt="Copy ID" />
-				</button>
-				<br />
-			</span>
-			<h2>Save your this id and Internet Identity number for later use. <br /></h2>
-			<br />
-			<button class="notification-button" on:click={handleNotifications} disabled={isLoading}>
-				{isLoading ? 'Loading...' : 'Notifications'}
-			</button>
-			<button class="logout" on:click={handleLogout}> Logout</button>
-		{:else}
-			<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
-		{/if}
-	</div>
-	<br />
 	<div class="notifications-container">
 		<h1>Notifications for Principal</h1>
 		<p class="principal-id">{TARGET_PRINCIPAL}</p>

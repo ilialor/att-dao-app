@@ -1,7 +1,8 @@
 <script>
 	import { page } from '$app/stores';
-	import logo from '$lib/images/logo_att.png';
+	import logo from '$lib/images/logo.png';
 	import github from '$lib/images/github.svg';
+	import { isLoading, handleNotifications } from '$lib/notification-store';
 </script>
 
 <header>
@@ -35,6 +36,11 @@
 	</nav>
 
 	<div class="corner">
+		{#if $page.url.pathname === '/'}
+			<button class="notification-button" on:click={$handleNotifications} disabled={$isLoading}>
+				{$isLoading ? 'Loading...' : 'Reload'}
+			</button>
+		{/if}
 		<a href="https://github.com/ava-vs/att-dao-app" target="_blank">
 			<img src={github} alt="GitHub" />
 		</a>
@@ -48,16 +54,19 @@
 	}
 
 	.corner {
-		width: 3em;
+		width: auto;
 		height: 3em;
+		display: flex;
+		justify-content: flex-end;
+		align-items: center;
 	}
 
 	.corner a {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		height: 100%;
+		width: 3em;
+		height: 3em;
 	}
 
 	.corner img {
@@ -128,5 +137,25 @@
 
 	a:hover {
 		color: var(--color-theme-1);
+	}
+
+	.notification-button {
+		background-color: #e2e2e2;
+		border: none;
+		color: white;
+		padding: 10px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 2px;
+		cursor: pointer;
+		border-radius: 4px;
+	}
+
+	.notification-button:disabled {
+		background-color: #cccccc;
+		color: #f0f0f0;
+		cursor: not-allowed;
 	}
 </style>
