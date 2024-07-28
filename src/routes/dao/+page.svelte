@@ -266,7 +266,7 @@
 
 	summary {
 		cursor: pointer;
-		color: #3498db;
+		color: var(--color-theme-2);
 	}
 
 	.proposal-content,
@@ -283,7 +283,7 @@
 	}
 
 	.dao-button {
-		background-color: #3498db;
+		background-color: var(--color-theme-2);
 		border: none;
 		color: white;
 		padding: 10px 20px;
