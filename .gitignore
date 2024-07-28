@@ -10,3 +10,8 @@ node_modules
 .output
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+ 
+svelte.config.js
+
+tsconfig.json
+pnpm-lock.yaml

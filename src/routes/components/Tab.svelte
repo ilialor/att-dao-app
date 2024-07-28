@@ -4,12 +4,23 @@
 
 	export let tabItems;
 	export let activeItem;
+    export let active = false;
 </script>
 
 <div class="tabs">
-	<ul>
+	<ul role="tablist">
 		{#each tabItems as item}
-			<li on:click={() => dispatch('tabChange', item)}>
+			<li role="tab"
+            tabindex="0"
+            aria-selected={active}
+            class:active 
+            on:click={() => dispatch('tabChange', item)}
+            on:keydown={(event) => {
+                if (event.key === ' ' || event.key === 'Enter') {
+                  event.preventDefault();
+                  event.target.click();
+                }
+              }}>
 				<div class:active={item === activeItem}>{item}</div>
 			</li>
 		{/each}

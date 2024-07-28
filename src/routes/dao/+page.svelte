@@ -15,6 +15,7 @@
 
 	//-------------------------- tabs
 	import Tabs from '../components/Tab.svelte';
+	import PForm from '../components/ProposalForm.svelte';
 
 	let tabItems = ['Proposals', 'Profile'];
 	let activeItem = 'Proposals';
@@ -211,6 +212,9 @@
 		<div class="proposals-container">
 			{#if balance !== null}
 				<span>Balance = {balance}</span>
+				<br />
+
+				<PForm />
 			{:else}
 				<span>Loading balance...</span>
 			{/if}
