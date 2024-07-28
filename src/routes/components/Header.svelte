@@ -177,4 +177,23 @@
 			height: 1.5em;
 		}
 	}
+
+	@media (max-width: 480px) {
+		nav a {
+			font-size: 0.6rem;
+			padding: 0 0.2rem;
+		}
+
+		.notification-button {
+			max-width: 50px;
+			height: 20px;
+			line-height: 20px;
+			font-size: 13px;
+		}
+
+		.corner img {
+			width: 1.5em;
+			height: 1.5em;
+		}
+	}
 </style>

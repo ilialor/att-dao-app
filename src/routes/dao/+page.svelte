@@ -111,7 +111,7 @@
 <main>
 	<br />
 
-	{#if loggedIn && proposals.length > 0}
+	{#if proposals.length > 0}
 		<div class="proposals-container">
 			<p class="proposal-count">Attention DAO Proposals: {proposals.length}</p>
 			<button class="dao-button" on:click={fetchProposals} disabled={isLoading}>
@@ -150,7 +150,7 @@
 				{/each}
 			</div>
 		</div>
-	{:else if loggedIn}
+	{:else}
 		<p>No proposals available</p>
 	{/if}
 </main>
