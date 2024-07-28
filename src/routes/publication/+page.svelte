@@ -54,7 +54,7 @@
 	}
 </script>
 
-<main>
+<main style="margin-top: 4rem;">
 	{#if loggedIn}
 		<div>
 			<div class="event-form">

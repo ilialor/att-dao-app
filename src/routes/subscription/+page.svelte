@@ -39,7 +39,7 @@
 	}
 </script>
 
-<main>
+<main style="margin-top: 4rem;">
 	<div class="text-column">
 		{#if loggedIn}
 			<div>

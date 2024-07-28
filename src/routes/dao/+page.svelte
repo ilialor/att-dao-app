@@ -1,23 +1,49 @@
 <script>
+	// @ts-nocheck
+
 	import { onMount } from 'svelte';
 	import {
-		loginII,
-		logout,
+		// loginII,
+		// logout,
 		isAuthenticated,
 		principalId,
 		dao_backend,
 		client_canister_actor
 	} from '../auth.js';
+	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
+
+	//-------------------------- tabs
+	import Tabs from '../components/Tab.svelte';
+
+	let tabItems = ['Proposals', 'Profile'];
+	let activeItem = 'Proposals';
+
+	const triggerTabChange = (/** @type {{ detail: string; }} */ event) => {
+		activeItem = event.detail;
+	};
+
+	//--------------------------------------------------------------------
+
+	const CANISTER_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai'; // TODO replace with process.env.CANISTER_ID_CLIENT
 
 	let principal = '';
 	let loggedIn = false;
+	let activeTab = 'Proposals';
+
 	// @ts-ignore
 	/**
 	 * @type {string | any[]}
 	 */
 	let proposals = [];
 	let isLoading = false;
+
+	/**
+	 * @param {{ detail: string; }} event
+	 */
+	function handleTabChange(event) {
+		activeTab = event.detail;
+	}
 
 	principalId.subscribe((value) => {
 		principal = value;
@@ -27,14 +53,14 @@
 		loggedIn = value;
 	});
 
-	function handleLogin() {
-		loginII();
-		fetchProposals();
-	}
+	// function handleLogin() {
+	// 	loginII();
+	// 	fetchProposals();
+	// }
 
-	function handleLogout() {
-		logout();
-	}
+	// function handleLogout() {
+	// 	logout();
+	// }
 
 	async function fetchProposals() {
 		isLoading = true;
@@ -101,6 +127,32 @@
 	onMount(() => {
 		fetchProposals();
 	});
+
+	/**
+	 * @type {any}
+	 */
+	let balance = null;
+
+	async function getBalance() {
+		let actor = client_canister_actor;
+		try {
+			if (!client_canister_actor) {
+				actor = await dao_backend();
+			}
+			const result = await actor.getMember(Principal.fromText(CANISTER_PRINCIPAL));
+			balance = result[0].votingPower;
+			console.log('Balance: ', result);
+		} catch (error) {
+			console.error('Error fetching balance:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	// Reactive statement to call getBalance when activeItem changes to 'Profile'
+	$: if (activeItem === 'Profile') {
+		getBalance();
+	}
 </script>
 
 <svelte:head>
@@ -110,49 +162,65 @@
 
 <main>
 	<br />
-
-	{#if proposals.length > 0}
-		<div class="proposals-container">
-			<p class="proposal-count">Attention DAO Proposals: {proposals.length}</p>
-			<button class="dao-button" on:click={fetchProposals} disabled={isLoading}>
-				{isLoading ? 'Loading...' : 'Refresh Proposals'}
-			</button>
-			<div class="card-list">
-				{#each proposals as proposal}
-					<div class="card">
-						<h2 class="card-title">Proposal ID: {proposal.id}</h2>
-						<p><strong>Proposer:</strong> {proposal.proposerId.toText()}</p>
-						<p><strong>Start Time:</strong> {formatDate(proposal.timeStart)}</p>
-						<p><strong>End Time:</strong> {formatDate(proposal.timeEnd)}</p>
-						<p><strong>Status:</strong> {getProposalStatus(proposal.statusLog)}</p>
-						<details>
-							<summary>More details</summary>
-							<div class="proposal-content">
-								<h4>Proposal Content:</h4>
-								<pre>{renderProposalContent(proposal.content)}</pre>
-							</div>
-							<div class="voting-summary">
-								<h4>Voting Summary:</h4>
-								<p>Total Votes: {proposal.votes.length}</p>
-								<p>
-									Yes Votes: {proposal.votes.filter(
-										(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === true
-									).length}
-								</p>
-								<p>
-									No Votes: {proposal.votes.filter(
-										(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === false
-									).length}
-								</p>
-							</div>
-						</details>
-					</div>
-				{/each}
+	<!------------------------ tabs -->
+	<Tabs {tabItems} {activeItem} on:tabChange={triggerTabChange} />
+	{#if activeItem === 'Proposals'}
+		{#if proposals.length > 0}
+			<div class="proposals-container">
+				<p class="proposal-count">Attention DAO Proposals: {proposals.length}</p>
+				<button class="dao-button" on:click={fetchProposals} disabled={isLoading}>
+					{isLoading ? 'Loading...' : 'Refresh Proposals'}
+				</button>
+				<div class="card-list">
+					{#each proposals as proposal}
+						<div class="card">
+							<h2 class="card-title">Proposal ID: {proposal.id}</h2>
+							<p><strong>Proposer:</strong> {proposal.proposerId.toText()}</p>
+							<p><strong>Start Time:</strong> {formatDate(proposal.timeStart)}</p>
+							<p><strong>End Time:</strong> {formatDate(proposal.timeEnd)}</p>
+							<p><strong>Status:</strong> {getProposalStatus(proposal.statusLog)}</p>
+							<details>
+								<summary>More details</summary>
+								<div class="proposal-content">
+									<h4>Proposal Content:</h4>
+									<pre>{renderProposalContent(proposal.content)}</pre>
+								</div>
+								<div class="voting-summary">
+									<h4>Voting Summary:</h4>
+									<p>Total Votes: {proposal.votes.length}</p>
+									<p>
+										Yes Votes: {proposal.votes.filter(
+											(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === true
+										).length}
+									</p>
+									<p>
+										No Votes: {proposal.votes.filter(
+											(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === false
+										).length}
+									</p>
+								</div>
+							</details>
+						</div>
+					{/each}
+				</div>
 			</div>
+		{:else}
+			<p>No proposals available</p>
+		{/if}
+	{:else if activeItem === 'Profile'}
+		<div class="proposals-container">
+			{#if balance !== null}
+				<span>Balance = {balance}</span>
+			{:else}
+				<span>Loading balance...</span>
+			{/if}
 		</div>
 	{:else}
-		<p>No proposals available</p>
+		<p>404</p>
 	{/if}
+	<!------------------------ tabs -->
+
+	<br />
 </main>
 
 <style>
