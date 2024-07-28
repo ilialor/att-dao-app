@@ -26,22 +26,6 @@
 		loggedIn = value;
 	});
 
-	// // @ts-ignore
-	// function handleLogin() {
-	// 	loginII();
-	// }
-
-	// // @ts-ignore
-	// function handleLogout() {
-	// 	logout();
-	// }
-
-	// // @ts-ignore
-	// async function copyValue() {
-	// 	await navigator.clipboard.writeText(principal);
-	// 	alert('ID скопирован: ' + principal);
-	// }
-
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
 	$: notifications = $messagesMapStore.get(TARGET_PRINCIPAL) || [];
@@ -108,6 +92,7 @@
 </svelte:head>
 
 <main>
+	<br />
 	<div class="notifications-container">
 		<h1>Notifications for Principal</h1>
 		<p class="principal-id">{TARGET_PRINCIPAL}</p>
