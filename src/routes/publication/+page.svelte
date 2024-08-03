@@ -3,6 +3,7 @@
 	import { loginII, logout, isAuthenticated } from '../auth.js';
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
+	import ComplexDataInput from '../components/ComplexDataInput.svelte';
 
 	let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 	let loggedIn = false;
@@ -12,10 +13,8 @@
 	let id = 0;
 	let namespace = 'event.hub.balance';
 	let timestamp = Date.now();
-	let dataType = 'Text';
-	let dataValue = '';
 	let headers = [];
-	let mapEntries = [];
+	let complexData = { type: 'Text', value: '' };
 
 	function handleLogin() {
 		loginII();
@@ -41,35 +40,26 @@
 		headers = headers.map((header, i) => (i === index ? { ...header, [field]: value } : header));
 	}
 
-	function addMapEntry() {
-		mapEntries = [...mapEntries, { key: '', value: '', type: 'Text' }];
-	}
-
-	function removeMapEntry(index) {
-		mapEntries = mapEntries.filter((_, i) => i !== index);
-	}
-
-	function updateMapEntry(index, field, value) {
-		mapEntries = mapEntries.map((entry, i) => (i === index ? { ...entry, [field]: value } : entry));
-	}
-
-	function convertToICRC16(type, value) {
-		switch (type) {
+	function convertToICRC16(data) {
+		switch (data.type) {
 			case 'Text':
-				return { Text: value };
+				return { Text: data.value };
 			case 'Nat':
-				return { Nat: parseInt(value) };
+				return { Nat: parseInt(data.value) };
 			case 'Int':
-				return { Int: parseInt(value) };
+				return { Int: parseInt(data.value) };
 			case 'Bool':
-				return { Bool: value === 'true' };
+				return { Bool: data.value === 'true' };
 			case 'Map':
 				return {
-					Map: mapEntries.map((entry) => [entry.key, convertToICRC16(entry.type, entry.value)])
+					Map: Object.entries(data.value).map(([key, val]) => [key, convertToICRC16(val)])
 				};
-			// Add more cases for other ICRC16 types as needed
+			case 'Array':
+				return {
+					Array: data.value.map((item) => convertToICRC16(item))
+				};
 			default:
-				return { Text: value };
+				return { Text: data.value };
 		}
 	}
 
@@ -80,9 +70,14 @@
 			timestamp: BigInt(timestamp),
 			namespace: namespace,
 			source: Principal.fromText(client_canister),
-			data: convertToICRC16(dataType, dataValue),
+			data: convertToICRC16(complexData),
 			headers: includeHeaders
-				? [headers.map((h) => [h.fieldName, convertToICRC16(h.fieldType, h.fieldValue)])]
+				? [
+						headers.map((h) => [
+							h.fieldName,
+							convertToICRC16({ type: h.fieldType, value: h.fieldValue })
+						])
+					]
 				: []
 		};
 		try {
@@ -127,59 +122,21 @@
 					<label for="namespace">Namespace</label>
 					<input type="text" id="namespace" bind:value={namespace} />
 				</div>
+
 				<div class="input-group">
 					<label for="dataType">Data Type</label>
-					<select id="dataType" bind:value={dataType}>
+					<select id="dataType" bind:value={complexData.type}>
 						<option value="Text">Text</option>
 						<option value="Nat">Nat</option>
 						<option value="Int">Int</option>
 						<option value="Bool">Bool</option>
 						<option value="Map">Map</option>
-						<!-- Add more options as needed -->
+						<option value="Array">Array</option>
 					</select>
 				</div>
 
-				{#if dataType !== 'Map'}
-					<div class="input-group">
-						<label for="dataValue">Data Value</label>
-						<input type="text" id="dataValue" bind:value={dataValue} />
-					</div>
-				{:else}
-					<div class="map-entries">
-						<button on:click={addMapEntry}>Add Map Entry</button>
-						{#each mapEntries as entry, index}
-							<div class="map-entry">
-								<input
-									type="text"
-									placeholder="Key"
-									value={entry.key}
-									on:input={(e) => updateMapEntry(index, 'key', e.target.value)}
-								/>
-								<select
-									value={entry.type}
-									on:change={(e) => updateMapEntry(index, 'type', e.target.value)}
-								>
-									<option value="Text">Text</option>
-									<option value="Nat">Nat</option>
-									<option value="Int">Int</option>
-									<option value="Bool">Bool</option>
-								</select>
-								<input
-									type="text"
-									placeholder="Value"
-									value={entry.value}
-									on:input={(e) => updateMapEntry(index, 'value', e.target.value)}
-								/>
-								<button on:click={() => removeMapEntry(index)}>Remove</button>
-							</div>
-						{/each}
-					</div>
-				{/if}
+				<ComplexDataInput bind:data={complexData} />
 
-				<!-- <div class="input-group">
-					<label for="dataValue">Data Value</label>
-					<input type="text" id="dataValue" bind:value={dataValue} />
-				</div> -->
 				<div class="checkbox-group">
 					<label for="includeHeaders">Add Headers?</label>
 					<input id="includeHeaders" type="checkbox" bind:checked={includeHeaders} />
