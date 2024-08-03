@@ -1,4 +1,3 @@
-// @ts-ignore
 export const idlFactory = ({ IDL }) => {
     const ICRC16 = IDL.Rec();
     const Result_4 = IDL.Variant({ 'ok': IDL.Text, 'err': IDL.Text });
@@ -81,8 +80,6 @@ export const idlFactory = ({ IDL }) => {
         'ok': IDL.Vec(EventNotification),
         'err': IDL.Text,
     });
-    const Result_1 = IDL.Variant({ 'ok': IDL.Bool, 'err': IDL.Text });
-    const Result = IDL.Variant({ 'ok': IDL.Nat, 'err': IDL.Text });
     const SubscriptionInfo = IDL.Record({
         'filters': IDL.Vec(IDL.Text),
         'active': IDL.Bool,
@@ -92,13 +89,24 @@ export const idlFactory = ({ IDL }) => {
         'subscriber': IDL.Principal,
         'namespace': IDL.Text,
     });
+    const Result_1 = IDL.Variant({ 'ok': IDL.Bool, 'err': IDL.Text });
+    const Event = IDL.Record({
+        'id': IDL.Nat,
+        'source': IDL.Principal,
+        'data': ICRC16,
+        'headers': IDL.Opt(ICRC16Map),
+        'timestamp': IDL.Nat,
+        'prevId': IDL.Opt(IDL.Nat),
+        'namespace': IDL.Text,
+    });
+    const Result = IDL.Variant({ 'ok': IDL.Nat, 'err': IDL.Text });
     const Main = IDL.Service({
         'changeBroadcaster': IDL.Func([IDL.Text], [Result_4], []),
         'frontEvent_publish': IDL.Func(
             [IDL.Vec(FrontEvent)],
             [
                 IDL.Vec(
-                    IDL.Record({
+                    IDL.Variant({
                         'Ok': IDL.Vec(IDL.Nat),
                         'Err': IDL.Vec(PublishError),
                     })
@@ -118,6 +126,7 @@ export const idlFactory = ({ IDL }) => {
             [],
         ),
         'getReceivedMessagesBySource': IDL.Func([IDL.Text], [Result_2], []),
+        'getSubscriptions': IDL.Func([], [IDL.Vec(SubscriptionInfo)], []),
         'icrc72_handle_notification': IDL.Func(
             [IDL.Vec(EventNotification)],
             [],
@@ -128,6 +137,7 @@ export const idlFactory = ({ IDL }) => {
             [IDL.Vec(Result_1)],
             [],
         ),
+        'publish': IDL.Func([Event], [Result], []),
         'removeAllMessages': IDL.Func([IDL.Vec(EventNotification)], [Result], []),
         'subscribe': IDL.Func([SubscriptionInfo], [IDL.Bool], []),
         'unsubscribeAll': IDL.Func([IDL.Principal], [], []),
@@ -135,5 +145,4 @@ export const idlFactory = ({ IDL }) => {
     });
     return Main;
 };
-// @ts-ignore
 export const init = ({ IDL }) => { return []; };

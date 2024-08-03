@@ -473,5 +473,19 @@ pre {
 
 .dao-button {
     width: 100%;
+}
 
+.map-entries {
+    margin-top: 1rem;
+}
+
+.map-entry {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.map-entry input,
+.map-entry select {
+    flex: 1;
 }

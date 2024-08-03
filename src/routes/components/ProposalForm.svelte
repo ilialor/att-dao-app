@@ -143,14 +143,14 @@
 	button {
 		padding: 0.5rem 1rem;
 		font-size: 1rem;
-		background-color: #4caf50;
+		background-color: #4075a6;
 		color: white;
 		border: none;
 		cursor: pointer;
 	}
 
 	button:hover {
-		background-color: #45a049;
+		background-color: #4075a6;
 	}
 
 	.error {
