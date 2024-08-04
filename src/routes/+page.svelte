@@ -56,24 +56,12 @@
 		uniqueId: `${notification.id || ''}-${index}`
 	}));
 
-	// function formatTimestamp(timestamp) {
-	// 	return new Date(Number(timestamp)).toLocaleString();
-	// }
-
-	// function renderICRC16(data) {
-	// 	if (typeof data === 'object' && data !== null) {
-	// 		if (Array.isArray(data)) {
-	// 			return `[${data.map(renderICRC16).join(', ')}]`;
-	// 		} else if (data instanceof Uint8Array) {
-	// 			return `Blob(${data.length} bytes)`;
-	// 		} else if (data.constructor === Object) {
-	// 			return JSON.stringify(data, (key, value) =>
-	// 				typeof value === 'bigint' ? value.toString() : value
-	// 			);
-	// 		}
-	// 	}
-	// 	return typeof data === 'bigint' ? data.toString() : String(data);
-	// }
+	function handleReaction(event) {
+		const { notificationId, reaction } = event.detail;
+		console.log(`Reaction for notification ${notificationId}:`, reaction);
+		// Здесь вы можете реализовать логику для обработки реакции,
+		// например, отправку новой публикации на основе выбранной реакции
+	}
 </script>
 
 <div class="notifications-container">
@@ -88,7 +76,7 @@
 		</CustomTypography>
 		<div class="card-list">
 			{#each notifications as notification (notification.uniqueId)}
-				<Notification {notification} />
+				<Notification {notification} on:reaction={handleReaction} />
 			{/each}
 		</div>
 	{:else}
