@@ -5,6 +5,9 @@
 	import '../index.scss';
 	import ComplexDataInput from '../components/ComplexDataInput.svelte';
 
+	let isPublishing = false;
+	let publishResult = null;
+
 	let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 	let loggedIn = false;
 	let prevId = null;
@@ -64,6 +67,9 @@
 	}
 
 	async function handleSubmit() {
+		isPublishing = true;
+		publishResult = null;
+
 		const event = {
 			id: Number(id),
 			prevId: includePrevId ? [Number(prevId)] : [],
@@ -84,14 +90,16 @@
 			const result = await _client_canister_actor.publish(event);
 			if ('ok' in result) {
 				console.log('Event published successfully. IDs:', result.ok);
-				// Handle successful publication (e.g., show a success message)
+				publishResult = { success: true, id: result.ok };
 			} else {
 				console.error('Error publishing event:', result.err);
-				// Handle error (e.g., show an error message to the user)
+				publishResult = { success: false, error: result.err };
 			}
 		} catch (error) {
 			console.error('Error calling publish method:', error);
-			// Handle unexpected errors
+			publishResult = { success: false, error: error.message };
+		} finally {
+			isPublishing = false;
 		}
 	}
 </script>
@@ -180,7 +188,23 @@
 						</div>
 					{/each}
 				{/if}
-				<button on:click={handleSubmit}>Publish</button>
+				<button
+					on:click={handleSubmit}
+					class:publishing={isPublishing}
+					class:success={publishResult && publishResult.success}
+					class:error={publishResult && !publishResult.success}
+					disabled={isPublishing}
+				>
+					{#if isPublishing}
+						<span class="spinner"></span>
+					{:else if publishResult && publishResult.success}
+						Ok! Id = {publishResult.id}
+					{:else if publishResult && !publishResult.success}
+						Error: {publishResult.error}
+					{:else}
+						Publish
+					{/if}
+				</button>
 			</div>
 			<button class="logout" on:click={handleLogout}> Logout</button>
 		</div>
@@ -188,3 +212,51 @@
 		<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
 	{/if}
 </main>
+
+<style>
+	button {
+		padding: 0.5rem 1rem;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	button:disabled {
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+
+	.publishing {
+		background-color: #f0f0f0;
+		color: #333;
+	}
+
+	.success {
+		background-color: #d4edda;
+		color: #155724;
+	}
+
+	.error {
+		background-color: #f8d7da;
+		color: #721c24;
+	}
+
+	.spinner {
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		border: 2px solid #333;
+		border-top: 2px solid #fff;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+</style>

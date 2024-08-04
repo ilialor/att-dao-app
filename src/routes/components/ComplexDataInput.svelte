@@ -99,7 +99,14 @@
 							on:input={() => updateMapEntry(key, key, value)}
 						/>
 					{/if}
-					<button on:click={() => removeMapEntry(key)}>Remove</button>
+					<button on:click={() => removeMapEntry(key)} class="icon-button">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+							<path fill="none" d="M0 0h24v24H0z" />
+							<path
+								d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"
+							/>
+						</svg>
+					</button>
 				</div>
 			{/each}
 		</div>
@@ -130,7 +137,14 @@
 							on:input={() => updateArrayItem(index, item)}
 						/>
 					{/if}
-					<button on:click={() => removeArrayItem(index)}>Remove</button>
+					<button on:click={() => removeArrayItem(index)} class="icon-button">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+							<path fill="none" d="M0 0h24v24H0z" />
+							<path
+								d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3H9zm0 5h2v9H9V8zm4 0h2v9h-2V8z"
+							/>
+						</svg>
+					</button>
 				</div>
 			{/each}
 		</div>
@@ -165,6 +179,7 @@
 	}
 	button {
 		padding: 0.25rem 0.5rem;
+		font-size: 1rem;
 		background-color: #f0f0f0;
 		border: 1px solid #ccc;
 		border-radius: 4px;
@@ -173,5 +188,20 @@
 	}
 	button:hover {
 		background-color: #e0e0e0;
+	}
+	button.icon-button {
+		padding: 0.25rem;
+		background: none;
+		border: none;
+		cursor: pointer;
+	}
+	button.icon-button svg {
+		width: 1rem;
+		height: 1rem;
+		fill: #333;
+		transition: fill 0.2s ease;
+	}
+	button.icon-button:hover svg {
+		fill: #ff4136;
 	}
 </style>
