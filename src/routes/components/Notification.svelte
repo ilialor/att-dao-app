@@ -1,20 +1,25 @@
 <script>
-	import { onMount } from 'svelte';
-	import CustomCard from './CustomCard.svelte';
+	// import { onMount } from 'svelte';
 	import CustomTypography from './CustomTypography.svelte';
-	import CustomButton from './CustomButton.svelte';
-	import CustomBox from './CustomBox.svelte';
+	import CustomCard from './CustomCard.svelte';
 
 	export let notification;
 
-	let isExpanded = false;
+	let showDetails = false;
+
+	function toggleDetails() {
+		showDetails = !showDetails;
+	}
 
 	function formatTimestamp(timestamp) {
 		return new Date(Number(timestamp)).toLocaleString();
 	}
 
 	function renderICRC16(data) {
-		if (typeof data === 'object' && data !== null) {
+		if (data === null || data === undefined) {
+			return 'N/A';
+		}
+		if (typeof data === 'object') {
 			if (Array.isArray(data)) {
 				return `[${data.map(renderICRC16).join(', ')}]`;
 			} else if (data instanceof Uint8Array) {
@@ -28,96 +33,65 @@
 		return typeof data === 'bigint' ? data.toString() : String(data);
 	}
 
-	function renderReactionButtons() {
-		if (!notification.data || !notification.data.Map) return [];
-
-		const expectedReactions = notification.data.Map.find(([key]) => key === 'expectedReactions');
-		if (!expectedReactions || !expectedReactions[1].Array) return [];
-
-		return expectedReactions[1].Array.map((reaction) => {
-			const reactionMap = reaction.Map;
-			if (!reactionMap) return null;
-
-			const template = reactionMap.find(([key]) => key === 'template')[1];
-			const price = reactionMap.find(([key]) => key === 'price')[1];
-			const templateName =
-				typeof template === 'object'
-					? template.Map.find(([key]) => key === 'type')[1].Text
-					: template.Text;
-
-			return {
-				templateName,
-				price: renderICRC16(price),
-				reaction
-			};
-		});
-	}
-
-	function handleReaction(reaction) {
-		console.log('Reaction:', reaction);
-	}
-
-	let reactionButtons;
-
-	onMount(() => {
-		reactionButtons = renderReactionButtons();
-	});
-
-	function toggleExpanded() {
-		isExpanded = !isExpanded;
-	}
+	// onMount(() => {
+	// 	console.log('Notification mounted:', notification);
+	// });
 </script>
 
-<CustomCard className="mb-4">
-	<CustomTypography variant="h6">Event ID: {notification.eventId}</CustomTypography>
+<CustomCard>
+	<CustomTypography variant="h6" class="card-title">
+		Event ID: {notification.eventId || 'N/A'}
+	</CustomTypography>
 	<CustomTypography variant="body2">
 		Timestamp: {formatTimestamp(notification.timestamp)}
 	</CustomTypography>
-	<CustomTypography variant="body2">Namespace: {notification.namespace}</CustomTypography>
-
-	<CustomButton onClick={toggleExpanded}>
-		{isExpanded ? 'Hide Details' : 'Show Details'}
-	</CustomButton>
-
-	{#if isExpanded}
-		<CustomBox mt={2}>
-			<CustomTypography variant="body2">ID: {notification.id}</CustomTypography>
-			<CustomTypography variant="body2">
-				Source: {notification.source.toText()}
-			</CustomTypography>
-			<CustomTypography variant="body2">
-				Pre-Event ID: {notification.preEventId ? notification.preEventId : 'None'}
-			</CustomTypography>
-			<CustomTypography variant="body2">
-				Filter: {notification.filter ? notification.filter : 'None'}
-			</CustomTypography>
-			<CustomBox mt={2}>
-				<CustomTypography variant="h6">Content:</CustomTypography>
-				<CustomTypography variant="body2">
-					{#if notification.data && notification.data.Map}
-						{renderICRC16(notification.data.Map.find(([key]) => key === 'content')[1])}
-					{:else}
-						No content available
-					{/if}
-				</CustomTypography>
-			</CustomBox>
-			{#if notification.headers}
-				<CustomBox mt={2}>
-					<CustomTypography variant="h6">Headers:</CustomTypography>
+	<CustomTypography variant="body2">
+		Namespace: {notification.namespace || 'N/A'}
+	</CustomTypography>
+	<button on:click={toggleDetails}>{showDetails ? 'Hide' : 'Show'} Details</button>
+	{#if showDetails}
+		<details open>
+			<summary>Data</summary>
+			<div class="data-section">
+				<pre>{renderICRC16(notification.data)}</pre>
+			</div>
+		</details>
+		{#if notification.headers}
+			<details>
+				<summary>Headers</summary>
+				<div class="headers-section">
 					<pre>{renderICRC16(notification.headers)}</pre>
-				</CustomBox>
-			{/if}
-			<CustomBox mt={2}>
-				<CustomTypography variant="h6">Reactions:</CustomTypography>
-				{#each reactionButtons as button}
-					<CustomButton onClick={() => handleReaction(button.reaction)} className="mr-2 mb-2">
-						{button.templateName}
-						<CustomTypography variant="body2">
-							Price: {button.price}
-						</CustomTypography>
-					</CustomButton>
-				{/each}
-			</CustomBox>
-		</CustomBox>
+				</div>
+			</details>
+		{/if}
 	{/if}
 </CustomCard>
+
+<style>
+	button {
+		background-color: #4caf50;
+		border: none;
+		color: white;
+		padding: 10px 20px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		margin: 4px 2px;
+		cursor: pointer;
+		border-radius: 4px;
+	}
+
+	.data-section,
+	.headers-section {
+		background-color: #f8f9fa;
+		border-radius: 4px;
+		padding: 10px;
+		margin-top: 10px;
+	}
+
+	pre {
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+</style>

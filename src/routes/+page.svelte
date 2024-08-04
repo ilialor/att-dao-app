@@ -56,24 +56,24 @@
 		uniqueId: `${notification.id || ''}-${index}`
 	}));
 
-	function formatTimestamp(timestamp) {
-		return new Date(Number(timestamp)).toLocaleString();
-	}
+	// function formatTimestamp(timestamp) {
+	// 	return new Date(Number(timestamp)).toLocaleString();
+	// }
 
-	function renderICRC16(data) {
-		if (typeof data === 'object' && data !== null) {
-			if (Array.isArray(data)) {
-				return `[${data.map(renderICRC16).join(', ')}]`;
-			} else if (data instanceof Uint8Array) {
-				return `Blob(${data.length} bytes)`;
-			} else if (data.constructor === Object) {
-				return JSON.stringify(data, (key, value) =>
-					typeof value === 'bigint' ? value.toString() : value
-				);
-			}
-		}
-		return typeof data === 'bigint' ? data.toString() : String(data);
-	}
+	// function renderICRC16(data) {
+	// 	if (typeof data === 'object' && data !== null) {
+	// 		if (Array.isArray(data)) {
+	// 			return `[${data.map(renderICRC16).join(', ')}]`;
+	// 		} else if (data instanceof Uint8Array) {
+	// 			return `Blob(${data.length} bytes)`;
+	// 		} else if (data.constructor === Object) {
+	// 			return JSON.stringify(data, (key, value) =>
+	// 				typeof value === 'bigint' ? value.toString() : value
+	// 			);
+	// 		}
+	// 	}
+	// 	return typeof data === 'bigint' ? data.toString() : String(data);
+	// }
 </script>
 
 <div class="notifications-container">
