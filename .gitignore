@@ -17,3 +17,4 @@ tsconfig.json
 pnpm-lock.yaml
 src/routes/publication/old_page.svelte
 src/example_notification.md
+src/routes/old_page.svelte
