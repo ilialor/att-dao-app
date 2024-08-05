@@ -64,20 +64,26 @@ if (browser) {
 export async function dao_backend() {
   const dao_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
-  await agent.fetchRootKey(); // for local 
-  return Actor.createActor(dao, { agent, canisterId: dao_canister });
+
+  if (VERCEL !== "1") {
+    await agent.fetchRootKey();
+  } return Actor.createActor(dao, { agent, canisterId: dao_canister });
 }
 
 export async function broadcaster() {
   const broadcaster_canister = "rvrj4-pyaaa-aaaal-ajluq-cai";//"mmt3g-qiaaa-aaaal-qi6ra-cai";
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
-  await agent.fetchRootKey(); // for local
-  return Actor.createActor(_broadcaster, { agent, canisterId: broadcaster_canister });
+
+  if (VERCEL !== "1") {
+    await agent.fetchRootKey();
+  } return Actor.createActor(_broadcaster, { agent, canisterId: broadcaster_canister });
 }
 
 export async function client_canister() {
   const client_canister = "mmt3g-qiaaa-aaaal-qi6ra-cai";
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
-  await agent.fetchRootKey(); // for local
-  return Actor.createActor(_client, { agent, canisterId: client_canister });
+
+  if (VERCEL !== "1") {
+    await agent.fetchRootKey();
+  } return Actor.createActor(_client, { agent, canisterId: client_canister });
 }
