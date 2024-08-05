@@ -149,14 +149,14 @@
 		transform: translateY(-5px);
 	}
 
-	.card-title {
+	/* .card-title {
 		margin-bottom: 10px;
 	}
 
 	.content {
 		margin-top: 10px;
 		font-weight: bold;
-	}
+	} */
 
 	button {
 		background-color: #4caf50;

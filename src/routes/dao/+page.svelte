@@ -2,14 +2,7 @@
 	// @ts-nocheck
 
 	import { onMount } from 'svelte';
-	import {
-		// loginII,
-		// logout,
-		isAuthenticated,
-		principalId,
-		dao_backend,
-		client_canister_actor
-	} from '../auth.js';
+	import { isAuthenticated, principalId, dao_backend, dao_canister_actor } from '../auth.js';
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 
@@ -54,20 +47,11 @@
 		loggedIn = value;
 	});
 
-	// function handleLogin() {
-	// 	loginII();
-	// 	fetchProposals();
-	// }
-
-	// function handleLogout() {
-	// 	logout();
-	// }
-
 	async function fetchProposals() {
 		isLoading = true;
-		let actor = client_canister_actor;
+		let actor = dao_canister_actor;
 		try {
-			if (!client_canister_actor) {
+			if (!dao_canister_actor) {
 				// @ts-ignore
 				actor = await dao_backend();
 			}

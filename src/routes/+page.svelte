@@ -1,10 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
-	import { writable, get } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import { isLoading, handleNotifications } from '$lib/notification-store';
 	import Notification from './components/Notification.svelte';
 	import CustomTypography from './components/CustomTypography.svelte';
-	import { isAuthenticated, principalId, broadcaster, broadcaster_canister_actor } from './auth.js';
+	import { isAuthenticated, principalId, client_canister_actor, client_canister } from './auth.js';
+	import { Principal } from '@dfinity/principal';
 
 	let principal = '';
 	let messagesMapStore = writable(new Map());
@@ -27,10 +28,10 @@
 
 	async function handleNotificationsImpl() {
 		isLoading.set(true);
-		let actor = broadcaster_canister_actor;
+		let actor = client_canister_actor;
 		try {
-			if (!broadcaster_canister_actor) {
-				actor = await broadcaster();
+			if (!client_canister_actor) {
+				actor = await client_canister();
 			}
 			console.log('Getting notifications for user: ', TARGET_PRINCIPAL);
 			let result = await actor.getNotificationsByUser(TARGET_PRINCIPAL);
@@ -56,11 +57,73 @@
 		uniqueId: `${notification.id || ''}-${index}`
 	}));
 
-	function handleReaction(event) {
+	async function handleReaction(event) {
 		const { notificationId, reaction } = event.detail;
 		console.log(`Reaction for notification ${notificationId}:`, reaction);
-		// Здесь вы можете реализовать логику для обработки реакции,
-		// например, отправку новой публикации на основе выбранной реакции
+
+		try {
+			let actor = client_canister_actor;
+			if (!client_canister_actor) {
+				actor = await client_canister();
+			}
+
+			const reactionData = {
+				type: 'Map',
+				value: {
+					originalNotificationId: { type: 'Nat', value: notificationId.toString() },
+					reactionNamespace: { type: 'Text', value: reaction.namespace },
+					reactionTemplate: { type: 'Text', value: JSON.stringify(reaction.template) },
+					reactionPrice: { type: 'Nat', value: reaction.price.toString() }
+				}
+			};
+
+			const pub_event = {
+				id: BigInt(Date.now()),
+				prevId: [BigInt(notificationId)],
+				timestamp: BigInt(Date.now()),
+				namespace: `response.${reaction.namespace}`,
+				source: Principal.fromText(TARGET_PRINCIPAL),
+				data: convertToICRC16(reactionData),
+				headers: []
+			};
+
+			console.log('Publishing reaction event:', pub_event);
+			const result = await actor.publish(pub_event);
+			console.log('Reaction event published:', result);
+		} catch (error) {
+			console.error('Error publishing reaction event:', error);
+		}
+	}
+
+	function convertToICRC16(data) {
+		if (typeof data !== 'object' || data === null) {
+			return { Text: data.toString() };
+		}
+
+		if (data.type === 'Map') {
+			const convertedMap = Object.entries(data.value).map(([key, val]) => [
+				key,
+				convertToICRC16(val)
+			]);
+			return { Map: convertedMap };
+		}
+
+		if (data.type === 'Array') {
+			return { Array: data.value.map(convertToICRC16) };
+		}
+
+		switch (data.type) {
+			case 'Text':
+				return { Text: data.value };
+			case 'Nat':
+				return { Nat: BigInt(data.value) };
+			case 'Int':
+				return { Int: BigInt(data.value) };
+			case 'Bool':
+				return { Bool: data.value === 'true' };
+			default:
+				return { Text: data.value.toString() };
+		}
 	}
 </script>
 
