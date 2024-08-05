@@ -18,9 +18,9 @@
 	isAuthenticated.subscribe((value) => {
 		loggedIn = value;
 	});
-	let subscriber = 'mlss5-5qaaa...';
+	let subscriber = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 	let filter = 'Filter 1';
-	let namespace = 'event.hub.balance';
+	let namespace = 'test';
 	let subscriptionInfo = {
 		namespace: namespace,
 		subscriber: Principal.fromText(client_canister),

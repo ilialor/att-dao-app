@@ -1,18 +1,11 @@
 <script>
-	import {
-		loginII,
-		logout,
-		isAuthenticated,
-		principalId,
-		broadcaster,
-		broadcaster_canister_actor
-	} from './auth.js';
-	// @ts-ignore
-	// import copy_icon from '$lib/images/copy_icon.png';
-	import './index.scss';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	import { isLoading, handleNotifications } from '$lib/notification-store';
+	import Notification from './components/Notification.svelte';
+	import CustomTypography from './components/CustomTypography.svelte';
+	import { isAuthenticated, principalId, client_canister_actor, client_canister } from './auth.js';
+	import { Principal } from '@dfinity/principal';
 
 	let principal = '';
 	let messagesMapStore = writable(new Map());
@@ -28,8 +21,6 @@
 
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
-	$: notifications = $messagesMapStore.get(TARGET_PRINCIPAL) || [];
-
 	onMount(() => {
 		console.log('onMount start');
 		handleNotificationsImpl();
@@ -37,14 +28,12 @@
 
 	async function handleNotificationsImpl() {
 		isLoading.set(true);
-		let actor = broadcaster_canister_actor;
+		let actor = client_canister_actor;
 		try {
-			if (!broadcaster_canister_actor) {
-				// @ts-ignore
-				actor = await broadcaster();
+			if (!client_canister_actor) {
+				actor = await client_canister();
 			}
 			console.log('Getting notifications for user: ', TARGET_PRINCIPAL);
-			// @ts-ignore
 			let result = await actor.getNotificationsByUser(TARGET_PRINCIPAL);
 			console.log('Notifications: ', result);
 			if (Array.isArray(result[1])) {
@@ -63,83 +52,113 @@
 
 	handleNotifications.set(handleNotificationsImpl);
 
-	// @ts-ignore
-	function formatTimestamp(timestamp) {
-		return new Date(Number(timestamp)).toLocaleString();
+	$: notifications = ($messagesMapStore.get(TARGET_PRINCIPAL) || []).map((notification, index) => ({
+		...notification,
+		uniqueId: `${notification.id || ''}-${index}`
+	}));
+
+	async function handleReaction(event) {
+		const { notificationId, reaction } = event.detail;
+		console.log(`Reaction for notification ${notificationId}:`, reaction);
+
+		try {
+			let actor = client_canister_actor;
+			if (!client_canister_actor) {
+				actor = await client_canister();
+			}
+
+			const reactionData = {
+				type: 'Map',
+				value: {
+					originalNotificationId: { type: 'Nat', value: notificationId.toString() },
+					reactionNamespace: { type: 'Text', value: reaction.namespace },
+					reactionTemplate: { type: 'Text', value: JSON.stringify(reaction.template) },
+					reactionPrice: { type: 'Nat', value: reaction.price.toString() }
+				}
+			};
+
+			const pub_event = {
+				id: BigInt(Date.now()),
+				prevId: [BigInt(notificationId)],
+				timestamp: BigInt(Date.now()),
+				namespace: `response.${reaction.namespace}`,
+				source: Principal.fromText(TARGET_PRINCIPAL),
+				data: convertToICRC16(reactionData),
+				headers: []
+			};
+
+			console.log('Publishing reaction event:', pub_event);
+			const result = await actor.publish(pub_event);
+			console.log('Reaction event published:', result);
+		} catch (error) {
+			console.error('Error publishing reaction event:', error);
+		}
 	}
 
-	// @ts-ignore
-	function renderICRC16(data) {
-		if (typeof data === 'object' && data !== null) {
-			if (Array.isArray(data)) {
-				return `[${data.map(renderICRC16).join(', ')}]`;
-			} else if (data instanceof Uint8Array) {
-				return `Blob(${data.length} bytes)`;
-			} else if (data.constructor === Object) {
-				// @ts-ignore
-				return JSON.stringify(data, (key, value) =>
-					typeof value === 'bigint' ? value.toString() : value
-				);
-			}
+	function convertToICRC16(data) {
+		if (typeof data !== 'object' || data === null) {
+			return { Text: data.toString() };
 		}
-		return typeof data === 'bigint' ? data.toString() : String(data);
+
+		if (data.type === 'Map') {
+			const convertedMap = Object.entries(data.value).map(([key, val]) => [
+				key,
+				convertToICRC16(val)
+			]);
+			return { Map: convertedMap };
+		}
+
+		if (data.type === 'Array') {
+			return { Array: data.value.map(convertToICRC16) };
+		}
+
+		switch (data.type) {
+			case 'Text':
+				return { Text: data.value };
+			case 'Nat':
+				return { Nat: BigInt(data.value) };
+			case 'Int':
+				return { Int: BigInt(data.value) };
+			case 'Bool':
+				return { Bool: data.value === 'true' };
+			default:
+				return { Text: data.value.toString() };
+		}
 	}
 </script>
 
-<svelte:head>
-	<title>Attention Client</title>
-	<meta name="description" content="Attention DAO demo app" />
-</svelte:head>
+<div class="notifications-container">
+	<CustomTypography variant="h4">Notifications for Principal</CustomTypography>
+	<CustomTypography variant="body1" class="principal-id">{TARGET_PRINCIPAL}</CustomTypography>
 
-<main>
-	<br />
-	<div class="notifications-container">
-		<h1>Notifications for Principal</h1>
-		<p class="principal-id">{TARGET_PRINCIPAL}</p>
-		{#if notifications.length > 0}
-			<p class="notification-count">
-				Total notifications: {notifications.length}
-			</p>
-			<div class="card-list">
-				{#each notifications as notification}
-					<div class="card">
-						<h2 class="card-title">Event ID: {notification.eventId}</h2>
-						<p>
-							<strong>Timestamp:</strong>
-							{formatTimestamp(notification.timestamp)}
-						</p>
-						<p><strong>Namespace:</strong> {notification.namespace}</p>
-						<details>
-							<summary>More details</summary>
-							<p><strong>ID:</strong> {notification.id}</p>
-							<p>
-								<strong>Source:</strong>
-								{notification.source.toText()}
-							</p>
-							<p>
-								<strong>Pre-Event ID:</strong>
-								{notification.preEventId ? notification.preEventId : 'None'}
-							</p>
-							<p>
-								<strong>Filter:</strong>
-								{notification.filter ? notification.filter : 'None'}
-							</p>
-							<div class="data-section">
-								<h4>Data:</h4>
-								<pre>{renderICRC16(notification.data)}</pre>
-							</div>
-							{#if notification.headers}
-								<div class="headers-section">
-									<h4>Headers:</h4>
-									<pre>{renderICRC16(notification.headers)}</pre>
-								</div>
-							{/if}
-						</details>
-					</div>
-				{/each}
-			</div>
-		{:else}
-			<p>No notifications available for this principal</p>
-		{/if}
-	</div>
-</main>
+	{#if $isLoading}
+		<CustomTypography variant="body1">Loading notifications...</CustomTypography>
+	{:else if notifications.length > 0}
+		<CustomTypography variant="body1" class="notification-count">
+			Total notifications: {notifications.length}
+		</CustomTypography>
+		<div class="card-list">
+			{#each notifications as notification (notification.uniqueId)}
+				<Notification {notification} on:reaction={handleReaction} />
+			{/each}
+		</div>
+	{:else}
+		<CustomTypography variant="body1"
+			>No notifications available for this principal</CustomTypography
+		>
+	{/if}
+</div>
+
+<style>
+	.notifications-container {
+		max-width: 800px;
+		margin: 0 auto;
+		padding: 20px;
+	}
+
+	.card-list {
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+	}
+</style>
