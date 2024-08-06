@@ -21,6 +21,10 @@
 
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
+	function getNextId(prevId) {
+		return BigInt(prevId) + 1n;
+	}
+
 	onMount(() => {
 		// console.log('onMount start');
 		handleNotificationsImpl();
@@ -61,24 +65,20 @@
 		console.log(`Publishing reaction for notification ${notificationId}:`, reaction);
 
 		try {
-			let reactionData = {
-				type: 'Map',
-				value: {
-					notificationId: { type: 'Nat', value: notificationId.toString() },
-					reaction: { type: 'Text', value: JSON.stringify(reaction) }
-				}
-			};
+			const prevId = BigInt(notificationId);
+			const nextId = getNextId(prevId);
+			const namespace = reaction.value.namespace ? reaction.value.namespace.value : 'unknown';
 
 			let pub_event = {
-				id: Date.now(),
-				prevId: [notificationId],
+				id: nextId,
+				prevId: [prevId],
 				timestamp: BigInt(Date.now() * 1000000),
-				namespace: 'response.' + reaction.namespace,
+				namespace: `response.${namespace}`,
 				source: Principal.fromText(TARGET_PRINCIPAL),
-				data: convertToICRC16(reactionData),
+				data: convertToICRC16(reaction.value.data),
 				headers: []
 			};
-
+			console.log('Publishing event:', pub_event);
 			let actor = client_canister_actor;
 			if (!client_canister_actor) {
 				actor = await client_canister();
@@ -86,6 +86,9 @@
 
 			const result = await actor.publish(pub_event);
 			console.log('Reaction published:', result);
+			if ('err' in result) {
+				throw new Error(result.err);
+			}
 			return result;
 		} catch (error) {
 			console.error('Error publishing reaction:', error);
@@ -95,75 +98,28 @@
 
 	function handleReaction(event) {
 		console.log('Reaction event received:', event.detail);
-		// You can add any additional logic here if needed
 	}
 
-	// async function handleReaction(event) {
-	// 	const { notificationId, reaction } = event.detail;
-	// 	console.log(`Reaction for notification ${notificationId}:`, reaction);
-
-	// 	try {
-	// 		let reactionData = {
-	// 			type: 'Map',
-	// 			value: {
-	// 				notificationId: { type: 'Nat', value: notificationId.toString() },
-	// 				reaction: { type: 'Text', value: JSON.stringify(reaction) }
-	// 			}
-	// 		};
-
-	// 		let pub_event = {
-	// 			id: Date.now(), // Use current timestamp as ID
-	// 			prevId: [notificationId],
-	// 			timestamp: BigInt(Date.now() * 1000000), // Convert to nanoseconds
-	// 			namespace: 'response.' + reaction.namespace,
-	// 			source: Principal.fromText(TARGET_PRINCIPAL),
-	// 			data: convertToICRC16(reactionData),
-	// 			headers: []
-	// 		};
-
-	// 		let actor = client_canister_actor;
-	// 		if (!client_canister_actor) {
-	// 			actor = await client_canister();
-	// 		}
-
-	// 		const result = await actor.publish(pub_event);
-	// 		console.log('Reaction published:', result);
-	// 		return result;
-	// 	} catch (error) {
-	// 		console.error('Error publishing reaction:', error);
-	// 		throw error;
-	// 	}
-	// }
-
 	function convertToICRC16(data) {
+		if (typeof data === 'string') {
+			try {
+				const parsedData = JSON.parse(data);
+				return convertToICRC16(parsedData);
+			} catch (e) {
+				return { Text: data };
+			}
+		}
+
 		if (typeof data !== 'object' || data === null) {
 			return { Text: data.toString() };
 		}
 
-		if (data.type === 'Map') {
-			const convertedMap = Object.entries(data.value).map(([key, val]) => [
-				key,
-				convertToICRC16(val)
-			]);
-			return { Map: convertedMap };
+		if (Array.isArray(data)) {
+			return { Array: data.map(convertToICRC16) };
 		}
 
-		if (data.type === 'Array') {
-			return { Array: data.value.map(convertToICRC16) };
-		}
-
-		switch (data.type) {
-			case 'Text':
-				return { Text: data.value };
-			case 'Nat':
-				return { Nat: BigInt(data.value) };
-			case 'Int':
-				return { Int: BigInt(data.value) };
-			case 'Bool':
-				return { Bool: data.value === 'true' };
-			default:
-				return { Text: data.value.toString() };
-		}
+		const convertedMap = Object.entries(data).map(([key, val]) => [key, convertToICRC16(val)]);
+		return { Map: convertedMap };
 	}
 </script>
 
