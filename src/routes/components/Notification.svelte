@@ -77,18 +77,26 @@
 		reactionResult = '';
 		try {
 			const reaction = event.detail;
-			console.log(`Handling reaction for notification ${notification.id}:`, reaction);
+			console.log(`Handling reaction for notification ${notification.eventId}:`, reaction);
 
-			dispatch('reaction', {
-				notificationId: notification.id,
-				reaction: reaction
-			});
+			let reactionData = {
+				type: 'Map',
+				value: {
+					notificationId: { type: 'Nat', value: notification.eventId.toString() },
+					reactionType: { type: 'Text', value: reaction.template.type || reaction.template },
+					namespace: { type: 'Text', value: reaction.namespace },
+					data: { type: 'Text', value: JSON.stringify(reaction.data) }
+				}
+			};
 
-			const result = await onReactionPublish(notification.id, reaction);
-			console.log('Reaction publish result:', result);
+			const result = await onReactionPublish(notification.eventId, reactionData);
+			// console.log('Reaction publish result:', result);
+			if ('err' in result) {
+				throw new Error(result.err);
+			}
 			reactionResult = 'Reaction published successfully!';
 		} catch (error) {
-			console.error('Error publishing reaction:', error);
+			// console.error('Error publishing reaction:', error);
 			reactionResult = `Error publishing reaction: ${error.message}`;
 		} finally {
 			reactionInProgress = false;
