@@ -2,10 +2,13 @@
 	import { createEventDispatcher } from 'svelte';
 
 	export let reactions = [];
+	export let disabled = false;
 	const dispatch = createEventDispatcher();
 
 	function handleReaction(reaction) {
-		dispatch('reaction', reaction);
+		if (!disabled) {
+			dispatch('reaction', reaction);
+		}
 	}
 
 	function parseReactionTemplate(template) {
@@ -60,7 +63,7 @@
 
 <div class="reactions">
 	{#each reactions as reaction}
-		<button class="reaction-button" on:click={() => handleReaction(reaction)}>
+		<button class="reaction-button" on:click={() => handleReaction(reaction)} {disabled}>
 			<span class="template">{parseReactionTemplate(reaction.template)}</span>
 			<span class="price">{reaction.price} FOCUS</span>
 		</button>
@@ -94,5 +97,9 @@
 	.price {
 		font-size: 0.8em;
 		color: #666;
+	}
+	.reaction-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 </style>

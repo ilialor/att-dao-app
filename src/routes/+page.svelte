@@ -22,7 +22,7 @@
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
 	onMount(() => {
-		console.log('onMount start');
+		// console.log('onMount start');
 		handleNotificationsImpl();
 	});
 
@@ -35,7 +35,7 @@
 			}
 			console.log('Getting notifications for user: ', TARGET_PRINCIPAL);
 			let result = await actor.getNotificationsByUser(TARGET_PRINCIPAL);
-			console.log('Notifications: ', result);
+			// console.log('Notifications: ', result);
 			if (Array.isArray(result[1])) {
 				messagesMapStore.update((map) => {
 					return new Map(map.set(TARGET_PRINCIPAL, result[1]));
@@ -57,43 +57,83 @@
 		uniqueId: `${notification.id || ''}-${index}`
 	}));
 
-	async function handleReaction(event) {
-		const { notificationId, reaction } = event.detail;
-		console.log(`Reaction for notification ${notificationId}:`, reaction);
+	async function handleReactionPublish(notificationId, reaction) {
+		console.log(`Publishing reaction for notification ${notificationId}:`, reaction);
 
 		try {
-			let actor = client_canister_actor;
-			if (!client_canister_actor) {
-				actor = await client_canister();
-			}
-
-			const reactionData = {
+			let reactionData = {
 				type: 'Map',
 				value: {
-					originalNotificationId: { type: 'Nat', value: notificationId.toString() },
-					reactionNamespace: { type: 'Text', value: reaction.namespace },
-					reactionTemplate: { type: 'Text', value: JSON.stringify(reaction.template) },
-					reactionPrice: { type: 'Nat', value: reaction.price.toString() }
+					notificationId: { type: 'Nat', value: notificationId.toString() },
+					reaction: { type: 'Text', value: JSON.stringify(reaction) }
 				}
 			};
 
-			const pub_event = {
-				id: BigInt(Date.now()),
-				prevId: [BigInt(notificationId)],
-				timestamp: BigInt(Date.now()),
-				namespace: `response.${reaction.namespace}`,
+			let pub_event = {
+				id: Date.now(),
+				prevId: [notificationId],
+				timestamp: BigInt(Date.now() * 1000000),
+				namespace: 'response.' + reaction.namespace,
 				source: Principal.fromText(TARGET_PRINCIPAL),
 				data: convertToICRC16(reactionData),
 				headers: []
 			};
 
-			console.log('Publishing reaction event:', pub_event);
+			let actor = client_canister_actor;
+			if (!client_canister_actor) {
+				actor = await client_canister();
+			}
+
 			const result = await actor.publish(pub_event);
-			console.log('Reaction event published:', result);
+			console.log('Reaction published:', result);
+			return result;
 		} catch (error) {
-			console.error('Error publishing reaction event:', error);
+			console.error('Error publishing reaction:', error);
+			throw error;
 		}
 	}
+
+	function handleReaction(event) {
+		console.log('Reaction event received:', event.detail);
+		// You can add any additional logic here if needed
+	}
+
+	// async function handleReaction(event) {
+	// 	const { notificationId, reaction } = event.detail;
+	// 	console.log(`Reaction for notification ${notificationId}:`, reaction);
+
+	// 	try {
+	// 		let reactionData = {
+	// 			type: 'Map',
+	// 			value: {
+	// 				notificationId: { type: 'Nat', value: notificationId.toString() },
+	// 				reaction: { type: 'Text', value: JSON.stringify(reaction) }
+	// 			}
+	// 		};
+
+	// 		let pub_event = {
+	// 			id: Date.now(), // Use current timestamp as ID
+	// 			prevId: [notificationId],
+	// 			timestamp: BigInt(Date.now() * 1000000), // Convert to nanoseconds
+	// 			namespace: 'response.' + reaction.namespace,
+	// 			source: Principal.fromText(TARGET_PRINCIPAL),
+	// 			data: convertToICRC16(reactionData),
+	// 			headers: []
+	// 		};
+
+	// 		let actor = client_canister_actor;
+	// 		if (!client_canister_actor) {
+	// 			actor = await client_canister();
+	// 		}
+
+	// 		const result = await actor.publish(pub_event);
+	// 		console.log('Reaction published:', result);
+	// 		return result;
+	// 	} catch (error) {
+	// 		console.error('Error publishing reaction:', error);
+	// 		throw error;
+	// 	}
+	// }
 
 	function convertToICRC16(data) {
 		if (typeof data !== 'object' || data === null) {
@@ -139,7 +179,11 @@
 		</CustomTypography>
 		<div class="card-list">
 			{#each notifications as notification (notification.uniqueId)}
-				<Notification {notification} on:reaction={handleReaction} />
+				<Notification
+					{notification}
+					on:reaction={handleReaction}
+					onReactionPublish={handleReactionPublish}
+				/>
 			{/each}
 		</div>
 	{:else}
