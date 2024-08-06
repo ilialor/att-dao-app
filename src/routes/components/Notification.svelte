@@ -4,12 +4,15 @@
 	import ReactionDisplay from './ReactionDisplay.svelte';
 
 	export let notification;
+	export let onReactionPublish;
 
 	const dispatch = createEventDispatcher();
 
 	let parsedContent = '';
 	let parsedReactions = [];
 	let showDetails = false;
+	let reactionInProgress = false;
+	let reactionResult = '';
 
 	$: {
 		parseNotificationData(notification.data);
@@ -25,11 +28,9 @@
 			if ('Map' in value) {
 				return new Map(value.Map.map(([k, v]) => [k, parseICRC16Value(v)]));
 			}
-			// Обработка случая, когда значение уже является Map
 			if (value instanceof Map) {
 				return new Map([...value].map(([k, v]) => [k, parseICRC16Value(v)]));
 			}
-			// Обработка случая, когда значение уже является массивом или объектом
 			if (Array.isArray(value)) {
 				return value.map(parseICRC16Value);
 			}
@@ -41,10 +42,7 @@
 	}
 
 	function parseNotificationData(data) {
-		console.log('Raw notification data:', data);
 		const parsedData = parseICRC16Value(data);
-		console.log('Parsed notification data:', parsedData);
-
 		if (parsedData instanceof Map) {
 			parsedContent = parsedData.get('content') || '';
 			const expectedReactions = parsedData.get('expectedReactions') || [];
@@ -62,7 +60,6 @@
 				})
 				.filter((r) => r !== null);
 		}
-		console.log('Parsed reactions:', parsedReactions);
 	}
 
 	function toggleDetails() {
@@ -73,11 +70,29 @@
 		return new Date(Number(timestamp)).toLocaleString();
 	}
 
-	function handleReaction(event) {
-		dispatch('reaction', {
-			notificationId: notification.id,
-			reaction: event.detail
-		});
+	async function handleReaction(event) {
+		if (reactionInProgress) return;
+
+		reactionInProgress = true;
+		reactionResult = '';
+		try {
+			const reaction = event.detail;
+			console.log(`Handling reaction for notification ${notification.id}:`, reaction);
+
+			dispatch('reaction', {
+				notificationId: notification.id,
+				reaction: reaction
+			});
+
+			const result = await onReactionPublish(notification.id, reaction);
+			console.log('Reaction publish result:', result);
+			reactionResult = 'Reaction published successfully!';
+		} catch (error) {
+			console.error('Error publishing reaction:', error);
+			reactionResult = `Error publishing reaction: ${error.message}`;
+		} finally {
+			reactionInProgress = false;
+		}
 	}
 
 	function renderICRC16(data) {
@@ -107,12 +122,29 @@
 		</CustomTypography>
 	{/if}
 
+	{#if parsedReactions.length > 0}
+		<div class="reactions-section">
+			<CustomTypography variant="body2">Available Reactions:</CustomTypography>
+			<ReactionDisplay
+				reactions={parsedReactions}
+				on:reaction={handleReaction}
+				disabled={reactionInProgress}
+			/>
+			{#if reactionInProgress}
+				<div class="spinner"></div>
+			{/if}
+			{#if reactionResult}
+				<div class="reaction-result">{reactionResult}</div>
+			{/if}
+		</div>
+	{/if}
+
 	<button on:click={toggleDetails}>
 		{showDetails ? 'Hide Details' : 'Show Details'}
 	</button>
 
 	{#if showDetails}
-		<details open>
+		<details>
 			<summary>Notification Details</summary>
 			<div class="data-section">
 				<CustomTypography variant="body2">Data:</CustomTypography>
@@ -125,13 +157,6 @@
 				</div>
 			{/if}
 		</details>
-
-		{#if parsedReactions.length > 0}
-			<div class="reactions-section">
-				<CustomTypography variant="body2">Available Reactions:</CustomTypography>
-				<ReactionDisplay reactions={parsedReactions} on:reaction={handleReaction} />
-			</div>
-		{/if}
 	{/if}
 </div>
 
@@ -148,15 +173,6 @@
 	.card:hover {
 		transform: translateY(-5px);
 	}
-
-	/* .card-title {
-		margin-bottom: 10px;
-	}
-
-	.content {
-		margin-top: 10px;
-		font-weight: bold;
-	} */
 
 	button {
 		background-color: #4caf50;
@@ -198,5 +214,32 @@
 	pre {
 		white-space: pre-wrap;
 		word-break: break-word;
+	}
+
+	.spinner {
+		width: 20px;
+		height: 20px;
+		border: 2px solid #f3f3f3;
+		border-top: 2px solid #3498db;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+		margin: 10px auto;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	.reaction-result {
+		margin-top: 10px;
+		padding: 10px;
+		background-color: #e7f3fe;
+		border-radius: 4px;
+		text-align: center;
 	}
 </style>
