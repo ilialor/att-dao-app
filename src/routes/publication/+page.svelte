@@ -10,7 +10,7 @@
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 	import ComplexDataInput from '../components/ComplexDataInput.svelte';
-	import PubTest from '../components/PubTest.svelte';
+	// import PubTest from '../components/PubTest.svelte';
 
 	let isPublishing = false;
 	let publishResult = null;
@@ -117,7 +117,7 @@
 </script>
 
 <main style="margin-top: 4rem;">
-	<PubTest />
+	<!-- <PubTest /> -->
 	{#if loggedIn}
 		<div>
 			<div class="event-form">
