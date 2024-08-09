@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { Principal } from '@dfinity/principal';
-	import { broadcaster, broadcaster_canister_actor } from '../auth.js';
+	import { client_canister, client_canister_actor, CLIENT_CANISTER_ID } from '../auth.js';
 	import ReactionDisplay from './ReactionDisplay.svelte';
 
 	let publishing = false;
@@ -9,33 +9,47 @@
 	let parsedContent = '';
 	let parsedReactions = [];
 
-	const client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
+	// const client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
 	function convertToICRC16(data) {
+		if (data === null || data === undefined) {
+			console.warn('Received null or undefined data in convertToICRC16');
+			return { Text: '' };
+		}
+
+		if (typeof data !== 'object') {
+			return { Text: String(data) };
+		}
+
 		switch (data.type) {
 			case 'Text':
-				return { Text: data.value };
+				return { Text: String(data.value) };
 			case 'Nat':
 				return { Nat: BigInt(data.value) };
 			case 'Int':
 				return { Int: BigInt(data.value) };
 			case 'Bool':
-				return { Bool: data.value === 'true' };
+				return { Bool: Boolean(data.value) };
+			case 'Principal':
+				return { Text: String(data.value) };
 			case 'Map':
 				return {
 					Map: Object.entries(data.value).map(([key, val]) => [key, convertToICRC16(val)])
 				};
 			case 'Array':
-				return {
-					Array: data.value.map((item) => convertToICRC16(item))
-				};
+				if (!Array.isArray(data.value)) {
+					console.warn('Array value is not an array:', data.value);
+					return { Array: [] };
+				}
+				return { Array: data.value.map(convertToICRC16) };
 			default:
-				return { Text: data.value };
+				console.warn('Unknown data type:', data.type);
+				return { Text: JSON.stringify(data) };
 		}
 	}
 
 	const testData = {
-		id: 12,
+		id: 150,
 		prevId: 0,
 		timestamp: 1625097600000000,
 		namespace: 'test',
@@ -58,7 +72,7 @@
 						{
 							type: 'Map',
 							value: {
-								namespace: { type: 'Text', value: 'rating.namespace' },
+								namespace: { type: 'Text', value: 'rating.test' },
 								template: { type: 'Text', value: 'LikeDislike' },
 								price: { type: 'Nat', value: '1' },
 								recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
@@ -175,7 +189,7 @@
 				prevId: [Number(testData.prevId)],
 				timestamp: BigInt(testData.timestamp),
 				namespace: testData.namespace,
-				source: Principal.fromText(client_canister),
+				source: Principal.fromText(CLIENT_CANISTER_ID),
 				data: convertToICRC16(testData.data),
 				headers:
 					testData.headers.length > 0
@@ -187,13 +201,24 @@
 							]
 						: []
 			};
-			let actor = broadcaster_canister_actor;
-			if (!broadcaster_canister_actor) {
-				actor = await broadcaster();
+			console.log(
+				'Prepared event:',
+				JSON.stringify(event, (key, value) =>
+					typeof value === 'bigint' ? value.toString() : value
+				)
+			);
+
+			let actor = client_canister_actor;
+			if (!client_canister_actor) {
+				console.log('Creating new client_canister actor');
+				actor = await client_canister();
 			}
+			console.log('Actor ready, calling publish method from ', CLIENT_CANISTER_ID);
 			const publishResult = await actor.publish(event);
+			console.log('Publish result:', publishResult);
 			result = `Publication sent successfully. Result: ${JSON.stringify(publishResult, bigIntReplacer)}`;
 		} catch (error) {
+			console.error('Error in sendTestPublication:', error);
 			result = `Error sending publication: ${error.message}`;
 		} finally {
 			publishing = false;

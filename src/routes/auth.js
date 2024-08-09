@@ -13,10 +13,13 @@ if (typeof global === 'undefined') {
 export const principalId = writable('');
 export const isAuthenticated = writable(false);
 export let client_canister_actor = null;
+export const CLIENT_CANISTER_ID = "mmt3g-qiaaa-aaaal-qi6ra-cai";
+export const broadcaster_canister = "rvrj4-pyaaa-aaaal-ajluq-cai";
 export let broadcaster_canister_actor = null;
 export let dao_canister_actor = null;
+export const dao_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
 
-const isLocal = false;
+const isLocal = true;
 
 
 async function initializeAuthClient() {
@@ -64,7 +67,7 @@ if (browser) {
 }
 
 export async function dao_backend() {
-  const dao_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
+
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
 
   if (isLocal) {
@@ -76,7 +79,6 @@ export async function dao_backend() {
 }
 
 export async function broadcaster() {
-  const broadcaster_canister = "rvrj4-pyaaa-aaaal-ajluq-cai";//"mmt3g-qiaaa-aaaal-qi6ra-cai";
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
 
   if (isLocal) {
@@ -87,12 +89,11 @@ export async function broadcaster() {
 }
 
 export async function client_canister() {
-  const client_canister = "mmt3g-qiaaa-aaaal-qi6ra-cai";
   const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
 
   if (isLocal) {
     agent.fetchRootKey().catch((err) => {
       console.log("Error fetching root key: ", err);
     });
-  } return Actor.createActor(_client, { agent, canisterId: client_canister });
+  } return Actor.createActor(_client, { agent, canisterId: CLIENT_CANISTER_ID });
 }

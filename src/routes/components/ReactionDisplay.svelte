@@ -19,12 +19,6 @@
 		selectedReaction = null;
 	}
 
-	function handleReaction(reaction) {
-		if (!disabled) {
-			dispatch('reaction', reaction);
-		}
-	}
-
 	function parseReactionTemplate(template) {
 		console.log('Parsing reaction template:', template);
 		if (typeof template === 'string') {
@@ -41,44 +35,20 @@
 		return 'Unknown Template';
 	}
 
-	function parseMapTemplate(map) {
-		if (map.has('type')) {
-			return map.get('type');
-		} else if (map.has('Text')) {
-			return map.get('Text');
+	function getReactionComponent(reaction) {
+		const templateType = parseReactionTemplate(reaction.template);
+		switch (templateType) {
+			case 'LikeDislike':
+				return LikeDislikeReaction;
+			case 'TextFeedback':
+			case 'Custom':
+				return TextFeedbackReaction;
+			case 'RegistrationForm':
+				return RegistrationFormReaction;
+			default:
+				console.error('Unknown reaction type:', templateType);
+				return null;
 		}
-		for (let [key, value] of map.entries()) {
-			if (typeof value === 'string') {
-				return value;
-			} else if (typeof value === 'object') {
-				let result = parseObjectTemplate(value);
-				if (result !== 'Unknown Template') {
-					return result;
-				}
-			}
-		}
-		return 'Unknown Template';
-	}
-
-	function parseObjectTemplate(obj) {
-		if (obj.type) {
-			return obj.type;
-		} else if (obj.Text) {
-			return obj.Text;
-		} else if (obj.Map) {
-			return parseMapTemplate(new Map(obj.Map));
-		}
-		for (let key in obj) {
-			if (typeof obj[key] === 'string') {
-				return obj[key];
-			} else if (typeof obj[key] === 'object') {
-				let result = parseObjectTemplate(obj[key]);
-				if (result !== 'Unknown Template') {
-					return result;
-				}
-			}
-		}
-		return 'Unknown Template';
 	}
 </script>
 
@@ -93,24 +63,15 @@
 
 {#if selectedReaction}
 	<div class="reaction-component">
-		{#if parseReactionTemplate(selectedReaction.template) === 'LikeDislike'}
-			<LikeDislikeReaction
+		{#if getReactionComponent(selectedReaction)}
+			<svelte:component
+				this={getReactionComponent(selectedReaction)}
 				reaction={selectedReaction}
 				{disabled}
 				on:reaction={handleReactionSubmit}
 			/>
-		{:else if parseReactionTemplate(selectedReaction.template) === 'TextFeedback' || parseReactionTemplate(selectedReaction.template) === 'Custom'}
-			<TextFeedbackReaction
-				reaction={selectedReaction}
-				{disabled}
-				on:reaction={handleReactionSubmit}
-			/>
-		{:else if parseReactionTemplate(selectedReaction.template) === 'RegistrationForm'}
-			<RegistrationFormReaction
-				reaction={selectedReaction}
-				{disabled}
-				on:reaction={handleReactionSubmit}
-			/>
+		{:else}
+			<p>Unsupported reaction type</p>
 		{/if}
 	</div>
 {/if}
