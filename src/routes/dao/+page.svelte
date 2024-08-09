@@ -2,7 +2,13 @@
 	// @ts-nocheck
 
 	import { onMount } from 'svelte';
-	import { isAuthenticated, principalId, dao_backend, dao_canister_actor } from '../auth.js';
+	import {
+		isAuthenticated,
+		principalId,
+		dao_backend,
+		dao_canister_actor,
+		CLIENT_CANISTER_ID
+	} from '../auth.js';
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 
@@ -19,8 +25,7 @@
 
 	//--------------------------------------------------------------------
 
-	const CANISTER_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai'; // TODO replace with process.env.CANISTER_ID_CLIENT
-
+	// const CANISTER_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 	let principal = '';
 	let loggedIn = false;
 	let activeTab = 'Proposals';
@@ -119,12 +124,12 @@
 	let balance = null;
 
 	async function getBalance() {
-		let actor = client_canister_actor;
+		let actor = dao_canister_actor;
 		try {
-			if (!client_canister_actor) {
+			if (!dao_canister_actor) {
 				actor = await dao_backend();
 			}
-			const result = await actor.getMember(Principal.fromText(CANISTER_PRINCIPAL));
+			const result = await actor.getMember(Principal.fromText(CLIENT_CANISTER_ID));
 			balance = result[0].votingPower;
 			console.log('Balance: ', result);
 		} catch (error) {

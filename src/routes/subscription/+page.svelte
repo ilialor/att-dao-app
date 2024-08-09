@@ -1,5 +1,5 @@
 <script>
-	import { _client_canister_actor } from './+page.js';
+	// import { _client_canister_actor } from './+page.js';
 	import {
 		loginII,
 		logout,
@@ -38,8 +38,13 @@
 		messagesRequested: 0,
 		messagesConfirmed: 0
 	};
+	let isPublishing = false;
+	let publishResult = null;
 
 	async function handleSubmit() {
+		isPublishing = true;
+		publishResult = null;
+
 		console.log('Submitted:', { subscriber, namespace, filter });
 		let actor = client_canister_actor;
 		if (!client_canister_actor) {
@@ -48,6 +53,8 @@
 		}
 		const subscription = await actor.subscribe(subscriptionInfo);
 		console.log('Subscription created: ', subscription);
+		isPublishing = false;
+		publishResult = subscription;
 		return subscription;
 	}
 </script>
@@ -69,13 +76,103 @@
 						<label for="filter">Filter</label>
 						<input type="text" id="filter" bind:value={filter} />
 					</div>
-					<button on:click={handleSubmit}>Submit</button>
+					<button
+						on:click={handleSubmit}
+						class:publishing={isPublishing}
+						class:success={publishResult}
+						class:error={publishResult && !publishResult === null}
+						disabled={isPublishing}
+					>
+						{#if isPublishing}
+							<span class="spinner"></span>
+						{:else if publishResult}
+							Ok!
+						{:else if !publishResult === null}
+							Error!
+						{:else}
+							Submit
+						{/if}
+					</button>
 				</div>
-				<button class="logout" on:click={handleLogout}> Logout</button>
+				<div class="button-container">
+					<button class="logout" on:click={handleLogout}> Logout</button>
+				</div>
 			</div>
 		{:else}
-			<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
+			<div class="button-container">
+				<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
+			</div>
 		{/if}
 		<p />
 	</div>
 </main>
+
+<style>
+	button {
+		padding: 0.5rem 1rem;
+		font-size: 1rem;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	button:disabled {
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+
+	.publishing {
+		background-color: #f0f0f0;
+		color: #333;
+	}
+
+	.success {
+		background-color: #d4edda;
+		color: #155724;
+	}
+
+	.error {
+		background-color: #f8d7da;
+		color: #721c24;
+	}
+
+	.spinner {
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		border: 2px solid #333;
+		border-top: 2px solid #fff;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+	.button-container {
+		display: flex;
+		justify-content: center;
+		margin-top: 2rem;
+	}
+
+	.login,
+	.logout {
+		background-color: #4075a6;
+		color: white;
+		padding: 14px 20px;
+		margin: 8px 0;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		transition: background-color 0.3s ease;
+	}
+
+	.login:hover,
+	.logout:hover {
+		background-color: #2c5282;
+	}
+</style>

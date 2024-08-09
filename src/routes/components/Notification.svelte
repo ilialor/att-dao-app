@@ -85,7 +85,8 @@
 					notificationId: { type: 'Nat', value: notification.eventId.toString() },
 					reactionType: { type: 'Text', value: reaction.template.type || reaction.template },
 					namespace: { type: 'Text', value: reaction.namespace },
-					data: { type: 'Text', value: JSON.stringify(reaction.data) }
+					data: { type: 'Text', value: JSON.stringify(reaction.data) },
+					timestamp: { type: 'Nat', value: Date.now().toString() }
 				}
 			};
 

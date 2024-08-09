@@ -20,7 +20,7 @@
 	}
 
 	function parseReactionTemplate(template) {
-		console.log('Parsing reaction template:', template);
+		// console.log('Parsing reaction template:', template);
 		if (typeof template === 'string') {
 			return template;
 		} else if (template instanceof Map) {

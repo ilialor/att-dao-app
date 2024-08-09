@@ -19,7 +19,7 @@ export let broadcaster_canister_actor = null;
 export let dao_canister_actor = null;
 export const dao_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
 
-const isLocal = true;
+const isLocal = false;
 
 
 async function initializeAuthClient() {
