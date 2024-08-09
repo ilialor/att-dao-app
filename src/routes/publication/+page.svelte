@@ -1,6 +1,12 @@
 <script>
-	import { _client_canister_actor } from './+page.js';
-	import { loginII, logout, isAuthenticated } from '../auth.js';
+	import {
+		loginII,
+		logout,
+		isAuthenticated,
+		client_canister,
+		client_canister_actor,
+		CLIENT_CANISTER_ID
+	} from '../auth.js';
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 	import ComplexDataInput from '../components/ComplexDataInput.svelte';
@@ -9,7 +15,7 @@
 	let isPublishing = false;
 	let publishResult = null;
 
-	let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
+	// let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 	let loggedIn = false;
 	let prevId = null;
 	let includePrevId = false;
@@ -76,7 +82,7 @@
 			prevId: includePrevId ? [Number(prevId)] : [],
 			timestamp: BigInt(timestamp),
 			namespace: namespace,
-			source: Principal.fromText(client_canister),
+			source: Principal.fromText(CLIENT_CANISTER_ID),
 			data: convertToICRC16(complexData),
 			headers: includeHeaders
 				? [
@@ -88,7 +94,12 @@
 				: []
 		};
 		try {
-			const result = await _client_canister_actor.publish(event);
+			let actor = client_canister_actor;
+			if (!client_canister_actor) {
+				console.log('Creating new client_canister actor');
+				actor = await client_canister();
+			}
+			const result = await actor.publish(event);
 			if ('ok' in result) {
 				console.log('Event published successfully. IDs:', result.ok);
 				publishResult = { success: true, id: result.ok };

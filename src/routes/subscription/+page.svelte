@@ -1,10 +1,17 @@
 <script>
 	import { _client_canister_actor } from './+page.js';
-	import { loginII, logout, isAuthenticated } from '../auth.js';
+	import {
+		loginII,
+		logout,
+		isAuthenticated,
+		client_canister_actor,
+		client_canister,
+		CLIENT_CANISTER_ID
+	} from '../auth.js';
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 
-	let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
+	// let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
 	let loggedIn = false;
 
@@ -19,11 +26,12 @@
 		loggedIn = value;
 	});
 	let subscriber = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
-	let filter = 'Filter 1';
+
 	let namespace = 'test';
+	let filter = namespace;
 	let subscriptionInfo = {
 		namespace: namespace,
-		subscriber: Principal.fromText(client_canister),
+		subscriber: Principal.fromText(CLIENT_CANISTER_ID),
 		active: true,
 		filters: [namespace],
 		messagesReceived: 0,
@@ -33,7 +41,12 @@
 
 	async function handleSubmit() {
 		console.log('Submitted:', { subscriber, namespace, filter });
-		const subscription = await _client_canister_actor.subscribe(subscriptionInfo);
+		let actor = client_canister_actor;
+		if (!client_canister_actor) {
+			console.log('Creating new client_canister actor');
+			actor = await client_canister();
+		}
+		const subscription = await actor.subscribe(subscriptionInfo);
 		console.log('Subscription created: ', subscription);
 		return subscription;
 	}
@@ -44,10 +57,10 @@
 		{#if loggedIn}
 			<div>
 				<div class="subscription-form">
-					<div class="input-group">
+					<!-- <div class="input-group">
 						<label for="subscriber">Subscriber</label>
 						<input type="text" id="subscriber" bind:value={subscriber} />
-					</div>
+					</div> -->
 					<div class="input-group">
 						<label for="namespace">Namespace</label>
 						<input type="text" id="namespace" bind:value={namespace} />
