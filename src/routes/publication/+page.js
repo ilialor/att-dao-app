@@ -8,9 +8,8 @@
 
 // const client_canister_actor = Actor.createActor(client, { agent, canisterId: client_canister });
 
-// // we don't need any JS on this page, though we'll load
-// // it in dev so that we get hot module replacement
-// export const _client_canister_actor = client_canister_actor;
+// we don't need any JS on this page, though we'll load
+// it in dev so that we get hot module replacement
 // export const csr = dev;
 
 // since there's no dynamic data here, we can prerender

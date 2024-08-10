@@ -10,7 +10,9 @@
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 	import ComplexDataInput from '../components/ComplexDataInput.svelte';
-	// import PubTest from '../components/PubTest.svelte';
+	import { nextNotification } from '$lib/notification-store';
+
+	import PubTest from '../components/PubTest.svelte';
 
 	let isPublishing = false;
 	let publishResult = null;
@@ -21,10 +23,22 @@
 	let includePrevId = false;
 	let includeHeaders = false;
 	let id = 0;
-	let namespace = 'event.hub.balance';
+	let namespace = 'test';
 	let timestamp = Date.now();
 	let headers = [];
 	let complexData = { type: 'Text', value: '' };
+
+	$: console.log('complexData changed:', JSON.stringify(complexData));
+
+	function handleComplexDataUpdate(event) {
+		complexData = event.detail;
+	}
+
+	function getNextId() {
+		let next = get(nextNotification) + 1;
+		nextNotification.set(next);
+		return BigInt(next);
+	}
 
 	function handleLogin() {
 		loginII();
@@ -76,9 +90,10 @@
 	async function handleSubmit() {
 		isPublishing = true;
 		publishResult = null;
-
+		const nextId = getNextId();
+		
 		const event = {
-			id: Number(id),
+			id: nextId,
 			prevId: includePrevId ? [Number(prevId)] : [],
 			timestamp: BigInt(timestamp),
 			namespace: namespace,
@@ -121,10 +136,10 @@
 	{#if loggedIn}
 		<div>
 			<div class="event-form">
-				<div class="input-group">
+				<!-- <div class="input-group">
 					<label for="id">ID</label>
 					<input type="number" id="id" bind:value={id} />
-				</div>
+				</div> -->
 				<div class="checkbox-group">
 					<label for="includePrevId">Add Previous ID?</label>
 					<input id="includePrevId" type="checkbox" bind:checked={includePrevId} />
@@ -156,7 +171,7 @@
 					</select>
 				</div>
 
-				<ComplexDataInput bind:data={complexData} />
+				<ComplexDataInput bind:data={complexData} on:update={handleComplexDataUpdate} />
 
 				<div class="checkbox-group">
 					<label for="includeHeaders">Add Headers?</label>
@@ -219,10 +234,14 @@
 					{/if}
 				</button>
 			</div>
-			<button class="logout" on:click={handleLogout}> Logout</button>
+			<div class="button-container">
+				<button class="logout" on:click={handleLogout}> Logout</button>
+			</div>
 		</div>
 	{:else}
-		<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
+		<div class="button-container">
+			<button class="login" on:click={handleLogin}> Login with Internet Identity</button>
+		</div>
 	{/if}
 </main>
 

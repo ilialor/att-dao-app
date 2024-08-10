@@ -49,14 +49,14 @@
 	}
 
 	const testData = {
-		id: 150,
-		prevId: 0,
-		timestamp: 1625097600000000,
+		id: 190,
+		prevId: 155,
+		timestamp: 1625097600002090,
 		namespace: 'test',
 		data: {
 			type: 'Map',
 			value: {
-				content: { type: 'Text', value: 'Test message with reaction' },
+				content: { type: 'Text', value: 'One more test message with reaction' },
 				expectedReactions: {
 					type: 'Array',
 					value: [
@@ -77,65 +77,67 @@
 								price: { type: 'Nat', value: '1' },
 								recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
 							}
-						},
-						{
-							type: 'Map',
-							value: {
-								namespace: { type: 'Text', value: 'registration.test' },
-								template: {
-									type: 'Map',
-									value: {
-										type: { type: 'Text', value: 'RegistrationForm' },
-										fields: {
-											type: 'Array',
-											value: [
-												{
-													type: 'Map',
-													value: {
-														name: { type: 'Text', value: 'Full Name' },
-														fieldType: { type: 'Text', value: 'Text' },
-														required: { type: 'Bool', value: 'true' }
-													}
-												},
-												{
-													type: 'Map',
-													value: {
-														name: { type: 'Text', value: 'Age' },
-														fieldType: { type: 'Text', value: 'Number' },
-														required: { type: 'Bool', value: 'true' }
-													}
-												},
-												{
-													type: 'Map',
-													value: {
-														name: { type: 'Text', value: 'Subscribe to hackathon' },
-														fieldType: { type: 'Text', value: 'Boolean' },
-														required: { type: 'Bool', value: 'false' }
-													}
-												}
-											]
-										}
-									}
-								},
-								price: { type: 'Nat', value: '20' },
-								recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
-							}
-						},
-						{
-							type: 'Map',
-							value: {
-								namespace: { type: 'Text', value: 'custom.test' },
-								template: {
-									type: 'Map',
-									value: {
-										type: { type: 'Text', value: 'Custom' },
-										details: { type: 'Text', value: 'Custom reaction template' }
-									}
-								},
-								price: { type: 'Nat', value: '50' },
-								recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
-							}
 						}
+						//,
+						// {
+						// 	type: 'Map',
+						// 	value: {
+						// 		namespace: { type: 'Text', value: 'registration.test' },
+						// 		template: {
+						// 			type: 'Map',
+						// 			value: {
+						// 				type: { type: 'Text', value: 'RegistrationForm' },
+						// 				fields: {
+						// 					type: 'Array',
+						// 					value: [
+						// 						{
+						// 							type: 'Map',
+						// 							value: {
+						// 								name: { type: 'Text', value: 'Full Name' },
+						// 								fieldType: { type: 'Text', value: 'Text' },
+						// 								required: { type: 'Bool', value: 'true' }
+						// 							}
+						// 						},
+						// 						{
+						// 							type: 'Map',
+						// 							value: {
+						// 								name: { type: 'Text', value: 'Age' },
+						// 								fieldType: { type: 'Text', value: 'Number' },
+						// 								required: { type: 'Bool', value: 'true' }
+						// 							}
+						// 						},
+						// 						{
+						// 							type: 'Map',
+						// 							value: {
+						// 								name: { type: 'Text', value: 'Subscribe to hackathon' },
+						// 								fieldType: { type: 'Text', value: 'Boolean' },
+						// 								required: { type: 'Bool', value: 'false' }
+						// 							}
+						// 						}
+						// 					]
+						// 				}
+						// 			}
+						// 		},
+						// 		price: { type: 'Nat', value: '20' },
+						// 		recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
+						// 	}
+						// }
+						// ,
+						// {
+						// 	type: 'Map',
+						// 	value: {
+						// 		namespace: { type: 'Text', value: 'custom.test' },
+						// 		template: {
+						// 			type: 'Map',
+						// 			value: {
+						// 				type: { type: 'Text', value: 'Custom' },
+						// 				details: { type: 'Text', value: 'Custom reaction template' }
+						// 			}
+						// 		},
+						// 		price: { type: 'Nat', value: '50' },
+						// 		recipient: { type: 'Principal', value: 'mmt3g-qiaaa-aaaal-qi6ra-cai' }
+						// 	}
+						// }
 					]
 				}
 			}

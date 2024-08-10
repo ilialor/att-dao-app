@@ -1,5 +1,4 @@
 <script>
-	// import { _client_canister_actor } from './+page.js';
 	import {
 		loginII,
 		logout,
@@ -28,7 +27,7 @@
 	let subscriber = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
 	let namespace = 'test';
-	let filter = namespace;
+	// let filter = namespace;
 	let subscriptionInfo = {
 		namespace: namespace,
 		subscriber: Principal.fromText(CLIENT_CANISTER_ID),
@@ -45,7 +44,13 @@
 		isPublishing = true;
 		publishResult = null;
 
-		console.log('Submitted:', { subscriber, namespace, filter });
+		subscriptionInfo = {
+			...subscriptionInfo,
+			namespace: namespace,
+			filters: [namespace]
+		};
+
+		console.log('Submitted:', { subscriptionInfo });
 		let actor = client_canister_actor;
 		if (!client_canister_actor) {
 			console.log('Creating new client_canister actor');
@@ -72,10 +77,10 @@
 						<label for="namespace">Namespace</label>
 						<input type="text" id="namespace" bind:value={namespace} />
 					</div>
-					<div class="input-group">
+					<!-- <div class="input-group">
 						<label for="filter">Filter</label>
 						<input type="text" id="filter" bind:value={filter} />
-					</div>
+					</div> -->
 					<button
 						on:click={handleSubmit}
 						class:publishing={isPublishing}
@@ -87,7 +92,7 @@
 							<span class="spinner"></span>
 						{:else if publishResult}
 							Ok!
-						{:else if !publishResult === null}
+						{:else if publishResult === false}
 							Error!
 						{:else}
 							Submit
@@ -153,26 +158,5 @@
 			transform: rotate(360deg);
 		}
 	}
-	.button-container {
-		display: flex;
-		justify-content: center;
-		margin-top: 2rem;
-	}
-
-	.login,
-	.logout {
-		background-color: #4075a6;
-		color: white;
-		padding: 14px 20px;
-		margin: 8px 0;
-		border: none;
-		border-radius: 4px;
-		cursor: pointer;
-		transition: background-color 0.3s ease;
-	}
-
-	.login:hover,
-	.logout:hover {
-		background-color: #2c5282;
-	}
+	
 </style>
