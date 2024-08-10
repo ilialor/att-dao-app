@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dao_backend } from '../auth.js';
+	import { dao_backend, CLIENT_CANISTER_ID } from '../auth.js';
 	import { onMount } from 'svelte';
 	import { Principal } from '@dfinity/principal';
 
@@ -12,13 +12,13 @@
 	let description = '';
 	let parameterName = '';
 	let newValue = '';
-	let recipient = '';
+	let recipient = CLIENT_CANISTER_ID;
 	let amount = 0;
 	let purposeDescription = '';
 	let wasmModule: ArrayBuffer | null = null;
 	let errorMessage = '';
 	let successMessage = '';
-
+	
 	let daoActor: any;
 
 	onMount(async () => {

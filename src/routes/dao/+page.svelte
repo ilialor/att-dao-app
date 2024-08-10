@@ -36,6 +36,9 @@
 	 * @type {string | any[]}
 	 */
 	let proposals = [];
+
+	$: sortedProposals = [...proposals].reverse();
+
 	let isLoading = false;
 
 	/**
@@ -145,6 +148,25 @@
 	$: if (activeItem === 'Profile') {
 		getBalance();
 	}
+
+	async function vote(proposalId, voteYes) {
+		isLoading = true;
+		let actor = dao_canister_actor;
+		try {
+			if (!dao_canister_actor) {
+				actor = await dao_backend();
+			}
+			console.log('Voting request: ', proposalId, CLIENT_CANISTER_ID, voteYes);
+			const result = await actor.vote(proposalId, CLIENT_CANISTER_ID, voteYes);
+			console.log('Vote result:', result);
+			// Optionally, you can refresh the proposals after voting
+			await fetchProposals();
+		} catch (error) {
+			console.error('Error voting:', error);
+		} finally {
+			isLoading = false;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -164,13 +186,25 @@
 					{isLoading ? 'Loading...' : 'Refresh Proposals'}
 				</button>
 				<div class="card-list">
-					{#each proposals as proposal}
+					{#each sortedProposals as proposal}
 						<div class="card">
 							<h2 class="card-title">Proposal ID: {proposal.id}</h2>
 							<p><strong>Proposer:</strong> {proposal.proposerId.toText()}</p>
 							<p><strong>Start Time:</strong> {formatDate(proposal.timeStart)}</p>
 							<p><strong>End Time:</strong> {formatDate(proposal.timeEnd)}</p>
 							<p><strong>Status:</strong> {getProposalStatus(proposal.statusLog)}</p>
+
+							{#if getProposalStatus(proposal.statusLog) === 'Open'}
+								<div class="voting-buttons">
+									<button class="vote-button yes" on:click={() => vote(proposal.id, true)}>
+										Vote Yes
+									</button>
+									<button class="vote-button no" on:click={() => vote(proposal.id, false)}>
+										Vote No
+									</button>
+								</div>
+							{/if}
+
 							<details>
 								<summary>More details</summary>
 								<div class="proposal-content">
@@ -181,14 +215,10 @@
 									<h4>Voting Summary:</h4>
 									<p>Total Votes: {proposal.votes.length}</p>
 									<p>
-										Yes Votes: {proposal.votes.filter(
-											(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === true
-										).length}
+										Yes Votes: {proposal.votes.filter((v) => v[1].value[0] === true).length}
 									</p>
 									<p>
-										No Votes: {proposal.votes.filter(
-											(/** @type {{ value: boolean[]; }[]} */ v) => v[1].value[0] === false
-										).length}
+										No Votes: {proposal.votes.filter((v) => v[1].value[0] === false).length}
 									</p>
 								</div>
 							</details>
@@ -206,8 +236,9 @@
 			{#if balance !== null}
 				<span>Balance = {balance}</span>
 				<br />
-
-				<PForm />
+				<div class="proposal-form">
+					<PForm />
+				</div>
 			{:else if isLoading}
 				<span>Loading balance...</span>
 			{:else}
@@ -217,8 +248,6 @@
 	{:else}
 		<p>404</p>
 	{/if}
-	<!------------------------ tabs -->
-
 	<br />
 </main>
 
@@ -294,5 +323,43 @@
 		cursor: pointer;
 		border-radius: 4px;
 		max-width: 40%;
+	}
+
+	.voting-buttons {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 10px;
+	}
+
+	.vote-button {
+		padding: 8px 16px;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: bold;
+		transition: background-color 0.3s;
+	}
+
+	.vote-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.vote-button.yes {
+		background-color: #4caf50;
+		color: white;
+	}
+
+	.vote-button.yes:hover:not(:disabled) {
+		background-color: #45a049;
+	}
+
+	.vote-button.no {
+		background-color: #f44336;
+		color: white;
+	}
+
+	.vote-button.no:hover:not(:disabled) {
+		background-color: #da190b;
 	}
 </style>
