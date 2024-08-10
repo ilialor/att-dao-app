@@ -10,3 +10,11 @@ node_modules
 .output
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+ 
+svelte.config.js
+
+tsconfig.json
+pnpm-lock.yaml
+src/routes/publication/old_page.svelte
+src/example_notification.md
+src/routes/old_page.svelte
