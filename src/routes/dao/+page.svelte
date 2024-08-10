@@ -9,6 +9,7 @@
 		dao_canister_actor,
 		CLIENT_CANISTER_ID
 	} from '../auth.js';
+
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 
@@ -124,6 +125,7 @@
 	let balance = null;
 
 	async function getBalance() {
+		isLoading = true;
 		let actor = dao_canister_actor;
 		try {
 			if (!dao_canister_actor) {
@@ -194,6 +196,8 @@
 					{/each}
 				</div>
 			</div>
+		{:else if isLoading}
+			<p>Loading proposals...</p>
 		{:else}
 			<p>No proposals available</p>
 		{/if}
@@ -204,8 +208,10 @@
 				<br />
 
 				<PForm />
-			{:else}
+			{:else if isLoading}
 				<span>Loading balance...</span>
+			{:else}
+				<span>No balance found</span>
 			{/if}
 		</div>
 	{:else}
