@@ -28,7 +28,7 @@
 	let headers = [];
 	let complexData = { type: 'Text', value: '' };
 
-	$: console.log('complexData changed:', JSON.stringify(complexData));
+	// $: console.log('complexData changed:', JSON.stringify(complexData));
 
 	function handleComplexDataUpdate(event) {
 		complexData = event.detail;
@@ -91,7 +91,7 @@
 		isPublishing = true;
 		publishResult = null;
 		const nextId = getNextId();
-		
+
 		const event = {
 			id: nextId,
 			prevId: includePrevId ? [Number(prevId)] : [],
