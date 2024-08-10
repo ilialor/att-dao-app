@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
-	import { isLoading, handleNotifications } from '$lib/notification-store';
+	import { writable, get } from 'svelte/store';
+	import { isLoading, handleNotifications, nextNotification } from '$lib/notification-store';
 	import Notification from './components/Notification.svelte';
 	import CustomTypography from './components/CustomTypography.svelte';
 	import { isAuthenticated, principalId, client_canister_actor, client_canister } from './auth.js';
@@ -21,8 +21,10 @@
 
 	const TARGET_PRINCIPAL = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
 
-	function getNextId(prevId) {
-		return BigInt(prevId) + 1n;
+	function getNextId() {
+		let next = get(nextNotification) + 1;
+		nextNotification.set(next);
+		return BigInt(next);
 	}
 
 	onMount(() => {
@@ -66,7 +68,8 @@
 
 		try {
 			const prevId = BigInt(notificationId);
-			const nextId = getNextId(prevId);
+			const nextId = getNextId();
+
 			const namespace = reaction.value.namespace ? reaction.value.namespace.value : 'unknown';
 
 			let pub_event = {

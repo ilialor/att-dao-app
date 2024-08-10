@@ -67,7 +67,13 @@
 	}
 
 	function formatTimestamp(timestamp) {
-		return new Date(Number(timestamp)).toLocaleString();
+		try {
+			const milliseconds = Number(timestamp) / 1_000_000;
+			return new Date(milliseconds).toLocaleString();
+		} catch (error) {
+			console.error('Error formatting timestamp:', error);
+			return 'Invalid Date';
+		}
 	}
 
 	async function handleReaction(event) {

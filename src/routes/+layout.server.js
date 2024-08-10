@@ -4,4 +4,6 @@
 // export function load() {
 // 	return { analyticsId: VERCEL_ANALYTICS_ID ?? null };
 // }
+export const csr = true;
+
 export const prerender = false;
