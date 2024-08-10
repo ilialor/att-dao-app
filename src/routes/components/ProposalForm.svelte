@@ -142,11 +142,7 @@
 
 	button {
 		padding: 0.5rem 1rem;
-		font-size: 1rem;
-		background-color: #4075a6;
-		color: white;
-		border: none;
-		cursor: pointer;
+		font-size: 0.8rem;
 	}
 
 	button:hover {
