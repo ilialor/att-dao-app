@@ -35,10 +35,30 @@
 		</svg>
 	</nav>
 
-	<div class="corner">
+	<div class="corner right">
 		{#if $page.url.pathname === '/'}
-			<button class="notification-button" on:click={$handleNotifications} disabled={$isLoading}>
-				{$isLoading ? 'Loading...' : 'Reload'}
+			<button
+				class="icon-button"
+				on:click={$handleNotifications}
+				disabled={$isLoading}
+				aria-label="Reload notifications"
+			>
+				<svg
+					class={$isLoading ? 'spin' : ''}
+					xmlns="http://www.w3.org/2000/svg"
+					width="20"
+					height="20"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path
+						d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
+					/>
+				</svg>
 			</button>
 		{/if}
 		<a href="https://github.com/ava-vs/att-dao-app" target="_blank">
@@ -51,22 +71,29 @@
 	header {
 		display: flex;
 		justify-content: space-between;
+		align-items: center;
+		padding: 0 1rem;
 	}
 
 	.corner {
-		width: auto;
-		height: 3em;
 		display: flex;
-		justify-content: flex-end;
 		align-items: center;
+		justify-content: center;
+		width: 3em;
+		height: 3em;
+	}
+
+	.right {
+		margin-right: 1rem;
+		justify-content: flex-end;
 	}
 
 	.corner a {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 3em;
-		height: 3em;
+		width: 2em;
+		height: 2em;
 	}
 
 	.corner img {
@@ -79,16 +106,6 @@
 		display: flex;
 		justify-content: center;
 		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
-	path {
-		fill: var(--background);
 	}
 
 	ul {
@@ -109,18 +126,6 @@
 		height: 100%;
 	}
 
-	li[aria-current='page']::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--color-theme-1);
-	}
-
 	nav a {
 		display: flex;
 		height: 100%;
@@ -135,65 +140,50 @@
 		transition: color 0.2s linear;
 	}
 
-	a:hover {
+	.icon-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		padding: 0.25em;
+		color: var(--color-text);
+		transition: color 0.2s linear;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.icon-button:hover {
 		color: var(--color-theme-1);
 	}
 
-	.notification-button {
-		background-color: #e2e2e2;
-		border: none;
-		color: white;
-		padding: 10px 20px;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 16px;
-		margin: 4px 2px;
-		cursor: pointer;
-		border-radius: 4px;
-	}
-
-	.notification-button:disabled {
-		background-color: #cccccc;
-		color: #f0f0f0;
+	.icon-button:disabled {
+		opacity: 0.5;
 		cursor: not-allowed;
 	}
 
-	@media (max-width: 640px) {
-		nav a {
-			font-size: 0.7rem;
-			padding: 0 0.3rem;
-		}
+	.icon-button svg {
+		width: 20px;
+		height: 20px;
+	}
 
-		.notification-button {
-			max-width: 80px;
-			height: 30px;
-			line-height: 30px;
-			font-size: 14px;
-		}
+	.spin {
+		animation: spin 1s linear infinite;
+	}
 
-		.corner img {
-			width: 1.5em;
-			height: 1.5em;
+	@keyframes spin {
+		100% {
+			transform: rotate(360deg);
 		}
 	}
 
-	@media (max-width: 480px) {
-		nav a {
-			font-size: 0.6rem;
-			padding: 0 0.2rem;
+	@media (max-width: 640px) {
+		.icon-button {
+			padding: 0.15em;
 		}
 
-		.notification-button {
-			max-width: 50px;
-			height: 20px;
-			line-height: 20px;
-			font-size: 13px;
-		}
-
-		.corner img {
-			width: 1.5em;
-			height: 1.5em;
+		.icon-button svg {
+			width: 18px;
+			height: 18px;
 		}
 	}
 </style>
