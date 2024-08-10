@@ -21,10 +21,10 @@
 				<a href="/">Home</a>
 			</li>
 			<li aria-current={$page.url.pathname.startsWith('/publication') ? 'page' : undefined}>
-				<a href="/publication">Publication</a>
+				<a href="/publication">Publish</a>
 			</li>
 			<li aria-current={$page.url.pathname.startsWith('/subscription') ? 'page' : undefined}>
-				<a href="/subscription">Subscription</a>
+				<a href="/subscription">Subscribe</a>
 			</li>
 			<li aria-current={$page.url.pathname === '/dao' ? 'page' : undefined}>
 				<a href="/dao">DAO</a>
@@ -124,6 +124,28 @@
 	li {
 		position: relative;
 		height: 100%;
+	}
+
+	svg {
+		width: 2em;
+		height: 3em;
+		display: block;
+	}
+
+	path {
+		fill: var(--background);
+	}
+
+	li[aria-current='page']::before {
+		--size: 6px;
+		content: '';
+		width: 0;
+		height: 0;
+		position: absolute;
+		top: 0;
+		left: calc(50% - var(--size));
+		border: var(--size) solid transparent;
+		border-top: var(--size) solid var(--color-theme-1);
 	}
 
 	nav a {
