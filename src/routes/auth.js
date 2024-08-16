@@ -38,7 +38,7 @@ export async function loginII() {
   if (!browser) return;
 
   const authClient = await AuthClient.create();
-  const iiUrl = 'https://identity.ic0.app';
+  const iiUrl = 'https://identity.icp0.io';
 
   await authClient.login({
     identityProvider: iiUrl,
@@ -68,7 +68,7 @@ if (browser) {
 
 export async function dao_backend() {
 
-  const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
+  const agent = HttpAgent.createSync({ host: 'https://icp0.io' });
 
   if (isLocal) {
     agent.fetchRootKey().catch((err) => {
@@ -79,7 +79,7 @@ export async function dao_backend() {
 }
 
 export async function broadcaster() {
-  const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
+  const agent = HttpAgent.createSync({ host: 'https://icp0.io' });
 
   if (isLocal) {
     agent.fetchRootKey().catch((err) => {
@@ -89,7 +89,7 @@ export async function broadcaster() {
 }
 
 export async function client_canister() {
-  const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
+  const agent = HttpAgent.createSync({ host: 'https://icp0.io' });
 
   if (isLocal) {
     agent.fetchRootKey().catch((err) => {

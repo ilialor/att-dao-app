@@ -4,7 +4,7 @@ import { idlFactory as dao } from '../../dao-backend.did';
 
 const dao_canister = "k5yym-uqaaa-aaaal-ajoyq-cai";
 
-const agent = HttpAgent.createSync({ host: 'https://ic0.app' });
+const agent = HttpAgent.createSync({ host: 'https://icp0.io' });
 
 const dao_canister_actor = Actor.createActor(dao, { agent, canisterId: dao_canister });
 
