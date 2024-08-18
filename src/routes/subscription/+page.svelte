@@ -10,8 +10,6 @@
 	import { Principal } from '@dfinity/principal';
 	import '../index.scss';
 
-	// let client_canister = 'mmt3g-qiaaa-aaaal-qi6ra-cai';
-
 	let loggedIn = false;
 
 	function handleLogin() {
@@ -158,5 +156,4 @@
 			transform: rotate(360deg);
 		}
 	}
-	
 </style>

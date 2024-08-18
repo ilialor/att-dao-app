@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { AuthClient } from '@dfinity/auth-client';
 import { browser } from '$app/environment';
 import { Actor, HttpAgent } from '@dfinity/agent';
-import { idlFactory as dao } from '../dao-backend.did';
+import { idlFactory as dao } from './dao.did';
 import { idlFactory as _client } from './client.did';
 import { idlFactory as _broadcaster } from './broadcaster.did';
 
@@ -13,6 +13,7 @@ if (typeof global === 'undefined') {
 export const principalId = writable('');
 export const isAuthenticated = writable(false);
 export let client_canister_actor = null;
+// let real_canister = process.env.CANISTER_ID_A_DAO_BACKEND; // TODO use it as CLIENT_CANISTER_ID
 export const CLIENT_CANISTER_ID = "mmt3g-qiaaa-aaaal-qi6ra-cai";
 export const broadcaster_canister = "rvrj4-pyaaa-aaaal-ajluq-cai";
 export let broadcaster_canister_actor = null;
@@ -38,7 +39,7 @@ export async function loginII() {
   if (!browser) return;
 
   const authClient = await AuthClient.create();
-  const iiUrl = 'https://identity.icp0.io';
+  const iiUrl = 'https://identity.internetcomputer.org';
 
   await authClient.login({
     identityProvider: iiUrl,
