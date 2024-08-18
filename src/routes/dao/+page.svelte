@@ -240,7 +240,7 @@
 					<PForm />
 				</div>
 				<br />
-				<div style="position:relative;padding-bottom:56.25%;">
+				<!-- <div style="position:relative;padding-bottom:56.25%;">
 					<iframe
 						style="width:100%;height:100%;position:absolute;left:0px;top:0px"
 						src="https://embed.app.guidde.com/playbooks/m9p1arqmGcsTpg5bJJzMog"
@@ -272,7 +272,7 @@
 					and pitching your voice. 01:35: The rest of the platforms features such as subscribing to
 					events publishing 01:39: events and receiving and responding to subscription notifications
 					are 01:44: covered in the following videos.
-				</p>
+				</p> -->
 			{:else if isLoading}
 				<span>Loading balance...</span>
 			{:else}
