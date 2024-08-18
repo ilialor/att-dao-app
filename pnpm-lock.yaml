@@ -20,13 +20,16 @@ importers:
       '@dfinity/principal':
         specifier: ^2.0.0
         version: 2.0.0
+      '@fontsource/baumans':
+        specifier: ^5.0.12
+        version: 5.0.13
+      '@fontsource/fira-mono':
+        specifier: ^5.0.13
+        version: 5.0.13
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
         version: 3.1.1(svelte@4.2.18)(vite@5.3.5(@types/node@22.0.0)(sass@1.77.8))
     devDependencies:
-      '@fontsource/fira-mono':
-        specifier: ^5.0.13
-        version: 5.0.13
       '@neoconfetti/svelte':
         specifier: ^2.2.1
         version: 2.2.1
@@ -282,6 +285,9 @@ packages:
   '@eslint/object-schema@2.1.4':
     resolution: {integrity: sha512-BsWiH1yFGjXXS2yvrf5LyuoSIIbPrGUWob917o+BTKuZ7qJdxX8aJLRxs1fS9n6r7vESrq1OUqb68dANcFXuQQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fontsource/baumans@5.0.13':
+    resolution: {integrity: sha512-Wwet2Fjibvxt2/x7G5tiP2AiAdl41dsHoS1kib10Zq3spkc9DqYvB/0O9oW3y1k2ROMLHgi8OWcDiRIsQgRmuA==}
 
   '@fontsource/fira-mono@5.0.13':
     resolution: {integrity: sha512-fZDjR2BdAqmauEbTjcIT62zYzbOgDa5+IQH34D2k8Pxmy1T815mAqQkZciWZVQ9dc/BgdTtTUV9HJ2ulBNwchg==}
@@ -1812,6 +1818,8 @@ snapshots:
   '@eslint/js@9.8.0': {}
 
   '@eslint/object-schema@2.1.4': {}
+
+  '@fontsource/baumans@5.0.13': {}
 
   '@fontsource/fira-mono@5.0.13': {}
 
